@@ -1,0 +1,80 @@
+{
+  "name": "SaFe Safari - رحلات سياحية آمنة",
+  "short_name": "SaFe Safari",
+  "description": "رحلات آمنة ومميزة مع أفضل الشركات السياحية في مصر. توقعات طقس ذكية واقتراحات مدعومة بالذكاء الاصطناعي",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "background_color": "#4A7C59",
+  "theme_color": "#4A7C59",
+  "orientation": "portrait-primary",
+  
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  
+  "screenshots": [
+    {
+      "src": "/screenshots/home-desktop.jpg",
+      "sizes": "1920x1080",
+      "type": "image/jpg",
+      "form_factor": "wide",
+      "label": "الصفحة الرئيسية"
+    },
+    {
+      "src": "/screenshots/home-mobile.jpg",
+      "sizes": "640x1136",
+      "type": "image/jpg",
+      "form_factor": "narrow",
+      "label": "الرئيسية - موبايل"
+    }
+  ],
+  
+  "shortcuts": [
+    {
+      "name": "استعراض الرحلات",
+      "short_name": "الرحلات",
+      "description": "تصفح جميع الرحلات المتاحة",
+      "url": "/trips.html",
+      "icons": [{"src": "/icons/shortcut-trips.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "توقعات الطقس",
+      "short_name": "الطقس",
+      "url": "/weather.html",
+      "icons": [{"src": "/icons/shortcut-weather.png", "sizes": "192x192"}]
+    }
+  ],
+  
+  "categories": ["travel", "tourism", "navigation"],
+  "iarc_rating_id": "",
+  "lang": "ar",
+  "dir": "rtl",
+  
+  "prefer_related_applications": false,
+  "related_applications": [],
+  
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}

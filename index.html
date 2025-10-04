@@ -1,0 +1,2008 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <!-- إلى هذا -->
+    <a href="./index.html">الرئيسية</a>
+    <a href="./weather.html">الطقس</a>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4A7C59">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/Y0G8B7Jy/logo.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/Y0G8B7Jy/logo.png">
+    <title>SaFe Safari - رحلات سياحية آمنة</title>
+
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
+        * {
+            font-family: 'Cairo', sans-serif;
+        }
+
+        :root {
+            --color-beige: #dfb995;
+            --color-dark-gray: #4A4A4A;
+            --color-gold: #f8ae0f;
+            --color-green: #4A7C59;
+            --color-green-dark: #3d6449;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--color-green) 0%, var(--color-green-dark) 50%, var(--color-dark-gray) 100%);
+        }
+
+        .hero-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .trip-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .trip-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        nav {
+            backdrop-filter: blur(10px);
+            background: rgba(232, 221, 211, 0.95);
+        }
+
+        .spinner {
+            border: 3px solid var(--color-beige);
+            border-top: 3px solid var(--color-green);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(74, 124, 89, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            border-radius: 1rem;
+        }
+
+        #map {
+            border: 3px solid var(--color-gold);
+            border-radius: 12px;
+            height: 400px;
+            width: 100%;
+            z-index: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-green), var(--color-green-dark));
+        }
+
+        .filter-btn.active {
+            background: var(--color-green) !important;
+            color: white !important;
+        }
+
+        @media (max-width: 768px) {
+            .hero-text {
+                font-size: 2.5rem !important;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+    <style>
+        .survey-step {
+            display: none;
+        }
+
+        .survey-step.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        .interest-btn {
+            transition: all 0.3s;
+        }
+
+        .interest-btn.selected {
+            background: var(--color-green) !important;
+            color: white !important;
+            transform: scale(1.05);
+            border-color: var(--color-green) !important;
+        }
+    </style>
+</head>
+<!-- Language Switcher Button -->
+<div class="fixed top-20 left-4 z-[60]">
+    <button onclick="toggleLanguage()"
+        class="px-4 py-2 bg-white rounded-full shadow-lg font-bold flex items-center gap-2 hover:bg-gray-50 transition">
+        <span>🌐</span>
+        <span id="langText">English</span>
+    </button>
+</div>
+
+<!-- Survey Modal -->
+<div id="surveyModal" class="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4"
+    style="display: none;">
+    <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="bg-gradient-to-r from-green-600 to-blue-600 p-8 text-white text-center">
+            <div class="text-6xl mb-4">🎯</div>
+            <h2 class="text-3xl font-black mb-2" data-ar="اكتشف رحلتك المثالية" data-en="Discover Your Perfect Trip">
+                اكتشف رحلتك المثالية</h2>
+            <p class="text-lg" data-ar="أجب على بعض الأسئلة البسيطة لنقترح عليك أفضل الرحلات"
+                data-en="Answer a few simple questions to get the best trip recommendations">أجب على بعض الأسئلة البسيطة
+                لنقترح عليك أفضل الرحلات</p>
+        </div>
+
+        <div class="px-8 pt-6">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-semibold text-gray-600"><span data-ar="الخطوة" data-en="Step">الخطوة</span>
+                    <span id="currentStep">1</span> <span data-ar="من" data-en="of">من</span> 4</span>
+                <span class="text-sm font-semibold text-green-600"><span id="progressPercent">20</span>%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div id="progressBar" class="bg-green-600 h-2 rounded-full transition-all duration-300"
+                    style="width: 20%"></div>
+            </div>
+        </div>
+        <div class="p-8">
+            <!-- Step 1: Age -->
+            <div class="survey-step active" data-step="1">
+                <h3 class="text-2xl font-bold mb-6 text-gray-800" data-ar="ما هو عمرك؟" data-en="What is your age?">ما
+                    هو عمرك؟</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="selectAge('18-30')"
+                        class="age-btn p-6 border-2 border-gray-300 rounded-xl hover:border-green-500 transition text-center">
+                        <div class="text-4xl mb-2">🎓</div>
+                        <div class="font-bold" data-ar="18-30 سنة" data-en="18-30 years">18-30 سنة</div>
+                    </button>
+                    <button onclick="selectAge('31-45')"
+                        class="age-btn p-6 border-2 border-gray-300 rounded-xl hover:border-green-500 transition text-center">
+                        <div class="text-4xl mb-2">💼</div>
+                        <div class="font-bold" data-ar="31-45 سنة" data-en="31-45 years">31-45 سنة</div>
+                    </button>
+                    <button onclick="selectAge('46-60')"
+                        class="age-btn p-6 border-2 border-gray-300 rounded-xl hover:border-green-500 transition text-center">
+                        <div class="text-4xl mb-2">👔</div>
+                        <div class="font-bold" data-ar="46-60 سنة" data-en="46-60 years">46-60 سنة</div>
+                    </button>
+                    <button onclick="selectAge('60+')"
+                        class="age-btn p-6 border-2 border-gray-300 rounded-xl hover:border-green-500 transition text-center">
+                        <div class="text-4xl mb-2">🎩</div>
+                        <div class="font-bold" data-ar="60+ سنة" data-en="60+ years">60+ سنة</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Interests -->
+            <div class="survey-step" data-step="2">
+                <h3 class="text-2xl font-bold mb-6 text-gray-800" data-ar="ما هي اهتماماتك؟ (اختر كل ما يناسبك)"
+                    data-en="What are your interests? (Select all that apply)">ما هي اهتماماتك؟</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <button onclick="toggleInterest('adventure')"
+                        class="interest-btn p-4 border-2 border-gray-300 rounded-xl text-center">
+                        <div class="text-3xl mb-1">🏔️</div>
+                        <div class="text-sm font-semibold" data-ar="مغامرة" data-en="Adventure">مغامرة</div>
+                    </button>
+                    <button onclick="toggleInterest('history')"
+                        class="interest-btn p-4 border-2 border-gray-300 rounded-xl text-center">
+                        <div class="text-3xl mb-1">🏛️</div>
+                        <div class="text-sm font-semibold" data-ar="تاريخ" data-en="History">تاريخ</div>
+                    </button>
+                    <button onclick="toggleInterest('beach')"
+                        class="interest-btn p-4 border-2 border-gray-300 rounded-xl text-center">
+                        <div class="text-3xl mb-1">🏖️</div>
+                        <div class="text-sm font-semibold" data-ar="شاطئ" data-en="Beach">شاطئ</div>
+                    </button>
+                    <button onclick="toggleInterest('nature')"
+                        class="interest-btn p-4 border-2 border-gray-300 rounded-xl text-center">
+                        <div class="text-3xl mb-1">🌿</div>
+                        <div class="text-sm font-semibold" data-ar="طبيعة" data-en="Nature">طبيعة</div>
+                    </button>
+                    <button onclick="toggleInterest('culture')"
+                        class="interest-btn p-4 border-2 border-gray-300 rounded-xl text-center">
+                        <div class="text-3xl mb-1">🎭</div>
+                        <div class="text-sm font-semibold" data-ar="ثقافة" data-en="Culture">ثقافة</div>
+                    </button>
+                    <button onclick="toggleInterest('relaxation')"
+                        class="interest-btn p-4 border-2 border-gray-300 rounded-xl text-center">
+                        <div class="text-3xl mb-1">🧘</div>
+                        <div class="text-sm font-semibold" data-ar="استرخاء" data-en="Relaxation">استرخاء</div>
+                    </button>
+                </div>
+                <button onclick="nextStep()"
+                    class="mt-6 w-full py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition"
+                    data-ar="التالي" data-en="Next">التالي</button>
+            </div>
+
+            <!-- Step 3: Trip Type -->
+            <div class="survey-step" data-step="3">
+                <h3 class="text-2xl font-bold mb-6 text-gray-800" data-ar="ما نوع الرحلة المفضلة؟"
+                    data-en="What type of trip do you prefer?">ما نوع الرحلة المفضلة؟</h3>
+                <div class="space-y-4">
+                    <button onclick="selectTripType('صحراوية')"
+                        class="trip-type-btn w-full p-6 border-2 border-gray-300 rounded-xl hover:border-green-500 transition text-right flex items-center gap-4">
+                        <div class="text-5xl">🏜️</div>
+                        <div>
+                            <div class="font-bold text-lg" data-ar="رحلات صحراوية" data-en="Desert Trips">رحلات صحراوية
+                            </div>
+                            <div class="text-sm text-gray-600" data-ar="سفاري وتخييم في الصحراء"
+                                data-en="Safari and desert camping">سفاري وتخييم في الصحراء</div>
+                        </div>
+                    </button>
+                    <button onclick="selectTripType('بحرية')"
+                        class="trip-type-btn w-full p-6 border-2 border-gray-300 rounded-xl hover:border-green-500 transition text-right flex items-center gap-4">
+                        <div class="text-5xl">🌊</div>
+                        <div>
+                            <div class="font-bold text-lg" data-ar="رحلات بحرية" data-en="Sea Trips">رحلات بحرية</div>
+                            <div class="text-sm text-gray-600" data-ar="غوص وكروز وشواطئ"
+                                data-en="Diving, cruises and beaches">غوص وكروز وشواطئ</div>
+                        </div>
+                    </button>
+                    <button onclick="selectTripType('أثرية')"
+                        class="trip-type-btn w-full p-6 border-2 border-gray-300 rounded-xl hover:border-green-500 transition text-right flex items-center gap-4">
+                        <div class="text-5xl">🏺</div>
+                        <div>
+                            <div class="font-bold text-lg" data-ar="رحلات أثرية" data-en="Historical Trips">رحلات أثرية
+                            </div>
+                            <div class="text-sm text-gray-600" data-ar="معابد ومتاحف وآثار"
+                                data-en="Temples, museums and monuments">معابد ومتاحف وآثار</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 4: Children -->
+            <div class="survey-step" data-step="4">
+                <h3 class="text-2xl font-bold mb-6 text-gray-800" data-ar="هل لديك أطفال سيرافقونك؟"
+                    data-en="Will you be traveling with children?">هل لديك أطفال سيرافقونك؟</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="selectChildren('yes')"
+                        class="children-btn p-8 border-2 border-gray-300 rounded-xl hover:border-green-500 transition text-center">
+                        <div class="text-6xl mb-3">👨‍👩‍👧‍👦</div>
+                        <div class="font-bold text-lg" data-ar="نعم" data-en="Yes">نعم</div>
+                        <div class="text-sm text-gray-600 mt-2" data-ar="رحلة عائلية" data-en="Family trip">رحلة عائلية
+                        </div>
+                    </button>
+                    <button onclick="selectChildren('no')"
+                        class="children-btn p-8 border-2 border-gray-300 rounded-xl hover:border-green-500 transition text-center">
+                        <div class="text-6xl mb-3">👥</div>
+                        <div class="font-bold text-lg" data-ar="لا" data-en="No">لا</div>
+                        <div class="text-sm text-gray-600 mt-2" data-ar="رحلة للبالغين" data-en="Adults only">رحلة
+                            للبالغين</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="px-8 pb-8 flex gap-4">
+    <button onclick="skipSurvey()"
+        class="flex-1 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition"
+        data-ar="تخطي" data-en="Skip">تخطي</button>
+    <button id="prevBtn" onclick="prevStep()"
+        class="flex-1 py-3 bg-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-300 transition"
+        style="display: none;" data-ar="السابق" data-en="Previous">السابق</button>
+    <button id="nextBtn" onclick="nextStep()"
+        class="flex-1 py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition"
+        style="display: none;" data-ar="التالي" data-en="Next">التالي</button>
+</div>
+</div>
+</div>
+<!-- Reset Survey Button (يظهر فقط لمن أكمل الاستبيان) -->
+<div id="resetSurveyBtn" class="fixed top-36 left-4 z-[60]" style="display: none;">
+    <button onclick="resetSurvey()"
+        class="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full shadow-lg font-bold flex items-center gap-2 hover:from-purple-600 hover:to-pink-600 transition">
+        <span>🔄</span>
+        <span data-ar="إعادة الاستبيان" data-en="Retake Survey">إعادة الاستبيان</span>
+    </button>
+</div>
+
+<body>
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-8">
+                    <a href="#home" class="flex items-center gap-2">
+                        <img src="https://i.ibb.co/d4ftYF1f/Whats-App-Image-2025-09-25-at-08-11-18-0042ce8a.jpg"
+                            alt="Logo" class="w-12 h-12 object-contain rounded-full">
+                        <span class="text-2xl font-bold" style="color: var(--color-green);">SaFe Safari</span>
+                    </a>
+                    <div class="hidden md:flex gap-6">
+                        <a href="#home" class="font-semibold transition hover:text-green-600"
+                            style="color: var(--color-dark-gray);">الرئيسية</a>
+                        <a href="#nasa-dashboard" class="font-semibold transition hover:text-green-600"
+                            style="color: var(--color-dark-gray);">توقعات الطقس</a>
+                        <a href="#trips" class="font-semibold transition hover:text-green-600"
+                            style="color: var(--color-dark-gray);">الرحلات</a>
+                        <a href="#contact" class="font-semibold transition hover:text-green-600"
+                            style="color: var(--color-dark-gray);">اتصل بنا</a>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div id="userInfo" class="hidden items-center gap-3">
+                        <img id="userPhoto" class="w-10 h-10 rounded-full border-2"
+                            style="border-color: var(--color-gold);" alt="User">
+                        <span id="userName" class="font-semibold" style="color: var(--color-dark-gray);"></span>
+                        <button onclick="signOut()"
+                            class="px-4 py-2 rounded-lg transition text-red-600 hover:bg-red-50">تسجيل خروج</button>
+                    </div>
+                    <button id="signInBtn" onclick="signInWithGoogle()"
+                        class="px-6 py-2 btn-primary text-white font-bold rounded-lg hover:shadow-lg transition">تسجيل
+                        دخول</button>
+                    <button class="md:hidden text-2xl" style="color: var(--color-dark-gray);"
+                        onclick="toggleMobileMenu()">☰</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden fixed top-20 left-0 right-0 bg-white shadow-lg z-40 md:hidden">
+        <div class="container mx-auto px-6 py-4 flex flex-col gap-4">
+            <a href="#home" class="font-semibold" style="color: var(--color-dark-gray);"
+                onclick="toggleMobileMenu()">الرئيسية</a>
+            <a href="#nasa-dashboard" class="font-semibold" style="color: var(--color-dark-gray);"
+                onclick="toggleMobileMenu()">توقعات الطقس</a>
+            <a href="#trips" class="font-semibold" style="color: var(--color-dark-gray);"
+                onclick="toggleMobileMenu()">الرحلات</a>
+            <a href="#contact" class="font-semibold" style="color: var(--color-dark-gray);"
+                onclick="toggleMobileMenu()">اتصل بنا</a>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex items-center gradient-bg hero-pattern pt-20">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="text-white space-y-6">
+                    <h1 class="hero-text text-5xl md:text-7xl font-black leading-tight">
+                        استكشف مصر مع
+                        <span class="block" style="color: var(--color-gold);">SaFe Safari</span>
+                    </h1>
+                    <p class="text-xl" style="color: var(--color-beige);">رحلات آمنة ومميزة مع أفضل الشركات السياحية في
+                        مصر</p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#trips"
+                            class="px-8 py-4 font-bold rounded-xl hover:shadow-2xl transform hover:scale-105 transition"
+                            style="background: var(--color-beige); color: var(--color-dark-gray);">استكشف الرحلات</a>
+                        <a href="#nasa-dashboard" class="px-8 py-4 font-bold rounded-xl border-2 transition"
+                            style="background: rgba(232, 221, 211, 0.2); color: var(--color-beige); border-color: var(--color-beige);">توقعات
+                            الطقس</a>
+                    </div>
+                    <div class="flex items-center gap-8 pt-6">
+                        <div class="text-center">
+                            <p class="text-4xl font-bold" style="color: var(--color-gold);">+2500</p>
+                            <p style="color: var(--color-beige);">رحلة</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-4xl font-bold" style="color: var(--color-gold);">+150</p>
+                            <p style="color: var(--color-beige);">مستخدم</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-4xl font-bold" style="color: var(--color-gold);">5.0</p>
+                            <p style="color: var(--color-beige);">تقييم</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden md:block float-animation">
+                    <img src="https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=600&q=80" alt="Desert Safari"
+                        class="rounded-3xl shadow-2xl">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Premium Recommendations Section -->
+    <section id="recommendations" class="py-20 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <div
+                    class="inline-block p-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full mb-4 shadow-2xl">
+                    <span class="text-5xl">🤖</span>
+                </div>
+                <h2 class="text-4xl md:text-5xl font-black mb-4" style="color: var(--color-dark-gray);">اقتراحات ذكية
+                    بتقنية AI
+                </h2>
+                <p class="text-xl text-gray-600">خوارزميات متطورة تحلل الطقس والموسم لاختيار الرحلة المثالية</p>
+            </div>
+
+            <div id="recommendedTripContainer" class="max-w-5xl mx-auto"></div>
+        </div>
+    </section>
+
+    <!-- NASA Dashboard -->
+    <section id="nasa-dashboard" class="py-20 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <div class="inline-block p-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-4">
+                    <span class="text-5xl">🛰️</span>
+                </div>
+                <h2 class="text-4xl md:text-5xl font-black text-gray-800 mb-4">توقعات الطقس الذكية</h2>
+                <p class="text-xl text-gray-600">مدعومة ببيانات NASA POWER</p>
+            </div>
+
+            <div class="max-w-6xl mx-auto">
+                <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-8 text-white">
+                        <h3 class="text-2xl font-bold mb-6">اختر الموقع والتاريخ</h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2 text-blue-100">المكان (أو
+                                    إحداثيات)</label>
+                                <input id="place" type="text" placeholder="القاهرة، الإسكندرية، أو 30.0444, 31.2357"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-white/30 bg-white/10 backdrop-blur text-white placeholder-white/60 focus:border-white focus:outline-none transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold mb-2 text-blue-100">التاريخ المطلوب</label>
+                                <input id="date" type="date"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-white/30 bg-white/10 backdrop-blur text-white focus:border-white focus:outline-none transition">
+                            </div>
+                        </div>
+                        <button onclick="loadNASAData()"
+                            class="mt-6 w-full md:w-auto px-8 py-4 bg-white text-blue-600 font-bold rounded-xl hover:shadow-2xl transform hover:scale-105 transition">
+                            تحليل البيانات
+                        </button>
+                    </div>
+
+                    <div class="p-6">
+                        <div class="mb-6">
+                            <label class="block text-sm font-semibold mb-2 text-gray-700">حدد الموقع على الخريطة</label>
+                            <div id="map"></div>
+                        </div>
+                    </div>
+
+                    <div id="resultsContainer" class="p-8 hidden">
+                        <div class="relative">
+                            <div id="loadingOverlay" class="loading-overlay hidden">
+                                <div class="text-center">
+                                    <div class="spinner mb-4"></div>
+                                    <p class="text-white font-semibold">جاري تحليل بيانات NASA...</p>
+                                </div>
+                            </div>
+
+                            <div id="results" class="mb-6"></div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trips Section -->
+    <section id="trips" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl md:text-5xl font-black mb-4" style="color: var(--color-dark-gray);">الرحلات المميزة
+                </h2>
+                <p class="text-xl" style="color: var(--color-dark-gray); opacity: 0.7;">اختر رحلتك المثالية</p>
+            </div>
+            <div class="flex gap-3 overflow-x-auto pb-4 mb-8 justify-center">
+                <button onclick="filterTrips('الكل')"
+                    class="filter-btn active px-6 py-2 rounded-full font-semibold whitespace-nowrap"
+                    style="background: white; color: var(--color-dark-gray);">الكل</button>
+                <button onclick="filterTrips('صحراوية')"
+                    class="filter-btn px-6 py-2 rounded-full font-semibold whitespace-nowrap"
+                    style="background: white; color: var(--color-dark-gray);">صحراوية</button>
+                <button onclick="filterTrips('بحرية')"
+                    class="filter-btn px-6 py-2 rounded-full font-semibold whitespace-nowrap"
+                    style="background: white; color: var(--color-dark-gray);">بحرية</button>
+                <button onclick="filterTrips('أثرية')"
+                    class="filter-btn px-6 py-2 rounded-full font-semibold whitespace-nowrap"
+                    style="background: white; color: var(--color-dark-gray);">أثرية</button>
+            </div>
+            <div id="tripsContainer" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        </div>
+    </section>
+
+    <!-- Trip Details Modal -->
+    <div id="tripModal" class="hidden fixed inset-0 bg-black/50 z-50 overflow-y-auto">
+        <div class="min-h-screen px-4 py-8">
+            <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden relative">
+                <button onclick="closeModal()"
+                    class="absolute top-4 right-4 z-10 bg-white rounded-full p-3 shadow-lg hover:bg-gray-100 transition">
+                    <span class="text-2xl font-bold">×</span>
+                </button>
+                <div id="modalContent"></div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl md:text-5xl font-black mb-4" style="color: var(--color-dark-gray);">اتصل بنا</h2>
+                <p class="text-xl text-gray-600">نحن هنا لمساعدتك</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+                <div class="space-y-8">
+                    <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="text-4xl bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full w-16 h-16 flex items-center justify-center">
+                                📍</div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-1">العنوان</h3>
+                                <p class="text-gray-600">جامعة سوهاج، سوهاج، مصر</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="text-4xl bg-gradient-to-br from-green-400 to-blue-500 rounded-full w-16 h-16 flex items-center justify-center">
+                                📞</div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-1">اتصل بنا</h3>
+                                <p class="text-gray-600">+20 100 123 4567</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="text-4xl bg-gradient-to-br from-purple-400 to-pink-500 rounded-full w-16 h-16 flex items-center justify-center">
+                                ✉️</div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-1">البريد الإلكتروني</h3>
+                                <p class="text-gray-600">safesafari@gmail.com</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-xl">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">أرسل لنا رسالة</h3>
+                    <form onsubmit="sendMessage(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">الاسم</label>
+                            <input type="text" id="contactName"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-green-500 focus:border-green-500 transition"
+                                placeholder="اسمك الكامل" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">البريد الإلكتروني</label>
+                            <input type="email" id="contactEmail"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-green-500 focus:border-green-500 transition"
+                                placeholder="example@domain.com" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">الرسالة</label>
+                            <textarea id="contactMessage" rows="4"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-green-500 focus:border-green-500 transition"
+                                placeholder="اكتب رسالتك هنا..." required></textarea>
+                        </div>
+                        <button type="submit"
+                            class="w-full py-4 btn-primary text-white font-bold rounded-xl hover:shadow-lg transition">أرسل
+                            الرسالة</button>
+                    </form>
+                    <div id="contactMessageStatus" class="mt-4 text-center font-semibold hidden"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8 border-b border-gray-700 pb-8 mb-8">
+                <div>
+                    <a href="#home" class="flex items-center gap-2 mb-4">
+                        <img src="https://i.postimg.cc/Y0G8B7Jy/logo.png" alt="Logo" class="w-10 h-10 object-contain">
+                        <span class="text-xl font-bold" style="color: var(--color-beige);">SaFe Safari</span>
+                    </a>
+                    <p class="text-gray-400">رحلات آمنة ومميزة لاكتشاف جمال مصر.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" style="color: var(--color-gold);">روابط سريعة</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#home" class="hover:text-white transition">الرئيسية</a></li>
+                        <li><a href="#nasa-dashboard" class="hover:text-white transition">توقعات الطقس</a></li>
+                        <li><a href="#trips" class="hover:text-white transition">الرحلات</a></li>
+                        <li><a href="#contact" class="hover:text-white transition">اتصل بنا</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" style="color: var(--color-gold);">خدماتنا</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">حجز الرحلات</a></li>
+                        <li><a href="#" class="hover:text-white transition">بيانات الطقس من ناسا</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" style="color: var(--color-gold);">تابعنا</h4>
+                    <div class="flex gap-4 text-2xl">
+                        <a href="#" class="hover:text-blue-400 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="currentColor">
+                                <path
+                                    d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm3 8h-1.35c-.538 0-.65.221-.65.778v1.222h2l-.209 2h-1.791v7h-3v-7h-2v-2h2v-2.308c0-1.769.931-2.692 3.029-2.692h1.971v3z" />
+                            </svg>
+                        </a>
+                        <a href="#" class="hover:text-sky-400 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="currentColor">
+                                <path
+                                    d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.066 9.645c.183 4.04-2.83 8.544-8.164 8.544-1.622 0-3.131-.476-4.402-1.291 1.524.18 3.045-.244 4.252-1.189-1.256-.023-2.317-.854-2.684-1.995.451.086.895.061 1.298-.049-1.381-.278-2.335-1.522-2.304-2.853.388.215.83.344 1.301.359-1.279-.855-1.641-2.544-.889-3.835 1.416 1.738 3.533 2.881 5.92 3.001-.419-1.796.944-3.527 2.799-3.527.825 0 1.572.349 2.096.907.654-.128 1.27-.368 1.824-.697-.215.671-.67 1.233-1.263 1.589.581-.07 1.135-.224 1.649-.453-.384.578-.87 1.084-1.433 1.489z" />
+                            </svg>
+                        </a>
+                        <a href="#" class="hover:text-pink-600 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="currentColor">
+                                <path
+                                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center text-gray-400">
+                &copy; <span id="currentYear"></span> SaFe Safari. جميع الحقوق محفوظة.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVzQXcCR742QhzQ74jlE6c7SWmcG0vF7I",
+            authDomain: "safe-safari-44beb.firebaseapp.com",
+            projectId: "safe-safari-44beb",
+            storageBucket: "safe-safari-44beb.appspot.com",
+            messagingSenderId: "1026020215603",
+            appId: "1:1026020215603:web:52e97cdb254ede492ccc46"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        let currentUser = null;
+        let map = null;
+        let marker = null;
+        let nasaChart = null;
+
+        // Trips Data
+        const tripsData = [
+            {
+                id: 1,
+                category: 'صحراوية',
+                title: 'سفاري واحة سيوة',
+                company: 'النيل للسياحة',
+                rating: 4.9,
+                image: 'https://images.unsplash.com/photo-1518388701918-c68912e79600?w=500&q=80',
+                description: 'رحلة مذهلة لاستكشاف واحة سيوة الساحرة مع زيارة معبد الوحي وجبل الموتى والعيون الطبيعية',
+                duration: '5 أيام / 4 ليالي',
+                startDate: '2025-11-15',
+                endDate: '2025-11-19',
+                location: 'سيوة',
+                lat: 29.2028,
+                lng: 25.5194,
+                includes: ['🚌 نقل مكيف', '🏨 إقامة 4 نجوم', '🥘 وجبات كاملة', '👤 مرشد سياحي', '🔒 تأمين شامل']
+            },
+            {
+                id: 2,
+                category: 'صحراوية',
+                title: 'الواحات البحرية',
+                company: 'النيل للسياحة',
+                rating: 4.8,
+                image: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=500&q=80',
+                description: 'تخييم في الصحراء البيضاء والسوداء مع مغامرات سفاري لا تُنسى',
+                duration: '4 أيام / 3 ليالي',
+                startDate: '2025-11-10',
+                endDate: '2025-11-13',
+                location: 'الواحات البحرية',
+                lat: 28.3500,
+                lng: 28.8667,
+                includes: ['🚙 سيارات دفع رباعي', '⛺ تخييم فاخر', '🔥 شواء بدوي', '⭐ رصد نجوم', '📸 جلسة تصوير']
+            },
+            {
+                id: 3,
+                category: 'صحراوية',
+                title: 'مغامرة الفيوم',
+                company: 'النيل للسياحة',
+                rating: 4.2,
+                image: 'https://images.unsplash.com/photo-1599915240347-19e9040bc9aa?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                description: 'استكشف وادي الحيتان ومحمية وادي الريان',
+                duration: '3 أيام / 2 ليالي',
+                startDate: '2025-11-05',
+                endDate: '2025-11-07',
+                location: 'الفيوم',
+                lat: 29.3084,
+                lng: 30.8428,
+                includes: ['🚐 نقل خاص', '🏕️ إقامة بيئية', '🐋 زيارة وادي الحيتان', '🍽️ طعام محلي', '🎫 تذاكر دخول']
+            },
+            {
+                id: 4,
+                category: 'بحرية',
+                title: 'غوص في شرم الشيخ',
+                company: 'البحر الأحمر للسفر',
+                rating: 5.0,
+                image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=500&q=80',
+                description: 'دورة غوص احترافية PADI مع استكشاف أجمل الشعاب المرجانية',
+                duration: '6 أيام / 5 ليالي',
+                startDate: '2025-12-01',
+                endDate: '2025-12-06',
+                location: 'شرم الشيخ',
+                lat: 27.9158,
+                lng: 34.3300,
+                includes: ['✈️ طيران داخلي', '🏨 منتجع 5 نجوم', '🤿 دورة غوص PADI', '🚤 رحلات يومية', '📜 شهادة معتمدة']
+            },
+            {
+                id: 5,
+                category: 'بحرية',
+                title: 'كروز نيلي فاخر',
+                company: 'البحر الأحمر للسفر',
+                rating: 4.9,
+                image: 'https://images.unsplash.com/photo-1568575621216-ca74d9a8c687?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                description: 'رحلة نيلية فاخرة من الأقصر لأسوان مع زيارة المعابد',
+                duration: '7 أيام / 6 ليالي',
+                startDate: '2025-12-10',
+                endDate: '2025-12-16',
+                location: 'الأقصر-أسوان',
+                lat: 25.6872,
+                lng: 32.6396,
+                includes: ['🛳️ كروز 5 نجوم', '🍽️ مطعم فاخر', '🎭 عروض مسائية', '🏛️ جولات أثرية', '💆 سبا ومساج']
+            },
+            {
+                id: 6,
+                category: 'بحرية',
+                title: 'يخت في دهب',
+                company: 'البحر الأحمر للسفر',
+                rating: 4.7,
+                image: 'https://images.unsplash.com/photo-1660151173472-3819f3255b5c?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                description: 'رحلة يخت خاص مع سنوركلينج في أجمل البقع',
+                duration: '4 أيام / 3 ليالي',
+                startDate: '2025-11-20',
+                endDate: '2025-11-23',
+                location: 'دهب',
+                lat: 28.5069,
+                lng: 34.5130,
+                includes: ['⛵ يخت خاص', '🏊 سنوركلينج', '🎣 صيد سمك', '🌅 رحلات غروب', '🍹 مشروبات وسناكس']
+            },
+            {
+                id: 7,
+                category: 'أثرية',
+                title: 'الأقصر وأسوان الأثرية',
+                company: 'مصر القديمة',
+                rating: 4.8,
+                image: 'https://images.unsplash.com/photo-1572252009286-268acec5ca0a?w=500&q=80',
+                description: 'جولة شاملة في أهم المعابد والمقابر الفرعونية',
+                duration: '6 أيام / 5 ليالي',
+                startDate: '2025-11-25',
+                endDate: '2025-11-30',
+                location: 'الأقصر-أسوان',
+                lat: 25.6872,
+                lng: 32.6396,
+                includes: ['✈️ طيران', '🏨 فنادق تاريخية', '🏛️ جميع المعابد', '🎫 تذاكر VIP', '📚 مرشد أثري متخصص']
+            },
+            {
+                id: 8,
+                category: 'أثرية',
+                title: 'أهرامات الجيزة',
+                company: 'مصر القديمة',
+                rating: 4.9,
+                image: 'https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=500&q=80',
+                description: 'استكشف عجائب الدنيا السبع والعاصمة القديمة',
+                duration: '3 أيام / 2 ليالي',
+                startDate: '2025-11-08',
+                endDate: '2025-11-10',
+                location: 'الجيزة-القاهرة',
+                lat: 29.9792,
+                lng: 31.1342,
+                includes: ['🚐 نقل VIP', '🏨 فندق بإطلالة', '🐪 جولة جمال', '🍽️ عشاء فرعوني', '🎥 عرض صوت وضوء']
+            },
+            {
+                id: 9,
+                category: 'أثرية',
+                title: 'جولة في عروس البحر المتوسط',
+                company: 'مصر القديمة',
+                rating: 4.6,
+                image: 'https://images.unsplash.com/photo-1697546889969-27f7b5be8664?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                description: 'رحلة لمدينة الإسكندر الأكبر وعروس البحر المتوسط',
+                duration: '4 أيام / 3 ليالي',
+                startDate: '2025-11-12',
+                endDate: '2025-11-15',
+                location: 'الإسكندرية',
+                lat: 31.2001,
+                lng: 29.9187,
+                includes: ['🚌 نقل مريح', '🏨 فندق على البحر', '📚 مكتبة الإسكندرية', '🏰 قلعة قايتباي', '🦐 سي فود طازج']
+            }
+        ];
+
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Firebase Authentication
+        firebase.auth().onAuthStateChanged((user) => {
+            currentUser = user;
+            const userInfo = document.getElementById('userInfo');
+            const signInBtn = document.getElementById('signInBtn');
+            const userName = document.getElementById('userName');
+            const userPhoto = document.getElementById('userPhoto');
+
+            if (user) {
+                signInBtn.classList.add('hidden');
+                userInfo.classList.remove('hidden');
+                userInfo.classList.add('flex');
+                userName.textContent = user.displayName;
+                userPhoto.src = user.photoURL || 'https://via.placeholder.com/40';
+            } else {
+                signInBtn.classList.remove('hidden');
+                userInfo.classList.add('hidden');
+                userInfo.classList.remove('flex');
+            }
+
+            // Refresh recommendations when auth state changes
+            displayRecommendedTrip();
+        });
+
+        function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+
+            firebase.auth().signInWithPopup(provider)
+                .then((result) => {
+                    console.log('تم تسجيل الدخول:', result.user.displayName);
+                })
+                .catch((error) => {
+                    console.error('خطأ في تسجيل الدخول:', error);
+                    alert('فشل تسجيل الدخول: ' + error.message);
+                });
+        }
+
+        function signOut() {
+            firebase.auth().signOut().then(() => {
+                console.log('تم تسجيل الخروج');
+            }).catch((error) => {
+                console.error('خطأ في تسجيل الخروج:', error);
+                alert('فشل تسجيل الخروج: ' + error.message);
+            });
+        }
+
+        // Initialize Map
+        function initMap() {
+            const mapElement = document.getElementById('map');
+            if (!mapElement) {
+                console.error('Map element not found');
+                return;
+            }
+
+            if (typeof L === 'undefined') {
+                console.error('Leaflet library not loaded');
+                setTimeout(initMap, 500);
+                return;
+            }
+
+            try {
+                if (map) {
+                    map.remove();
+                }
+
+                map = L.map('map', {
+                    center: [26.8206, 30.8025],
+                    zoom: 6,
+                    scrollWheelZoom: true,
+                    zoomControl: true
+                });
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                    maxZoom: 19,
+                    minZoom: 5
+                }).addTo(map);
+
+                setTimeout(() => {
+                    if (map) {
+                        map.invalidateSize();
+                    }
+                }, 200);
+
+                map.on('click', function (e) {
+                    if (marker) {
+                        map.removeLayer(marker);
+                    }
+                    marker = L.marker(e.latlng).addTo(map);
+                    document.getElementById('place').value = `${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`;
+                });
+
+                console.log('Map initialized successfully');
+            } catch (error) {
+                console.error('Error initializing map:', error);
+                setTimeout(initMap, 1000);
+            }
+        }
+
+        // NASA Data Loading
+
+        function getClothingAdvice(temp) {
+            if (temp >= 40) return '<div class="p-3 bg-red-50 border-r-4 border-red-500 rounded"><p class="font-semibold text-red-800 mb-1">👕 الملابس (حار جداً)</p><p class="text-sm text-gray-700">• ارتدِ ملابس قطنية فاتحة اللون وفضفاضة<br>• قبعة واسعة ونظارات شمسية ضرورية<br>• تجنب الملابس الداكنة تماماً</p></div>';
+            if (temp >= 30) return '<div class="p-3 bg-orange-50 border-r-4 border-orange-500 rounded"><p class="font-semibold text-orange-800 mb-1">👕 الملابس (حار)</p><p class="text-sm text-gray-700">• ملابس خفيفة وفاتحة اللون<br>• قبعة ونظارات شمسية مفيدة</p></div>';
+            if (temp >= 20) return '<div class="p-3 bg-green-50 border-r-4 border-green-500 rounded"><p class="font-semibold text-green-800 mb-1">👕 الملابس (معتدل)</p><p class="text-sm text-gray-700">• ملابس عادية مريحة<br>• الجو مثالي للنشاطات</p></div>';
+            if (temp >= 10) return '<div class="p-3 bg-blue-50 border-r-4 border-blue-500 rounded"><p class="font-semibold text-blue-800 mb-1">🧥 الملابس (بارد)</p><p class="text-sm text-gray-700">• جاكيت أو سترة متوسطة السماكة<br>• ملابس بأكمام طويلة</p></div>';
+            return '<div class="p-3 bg-indigo-50 border-r-4 border-indigo-500 rounded"><p class="font-semibold text-indigo-800 mb-1">🧥 الملابس (بارد جداً)</p><p class="text-sm text-gray-700">• معطف ثقيل وملابس دافئة<br>• طبقات متعددة</p></div>';
+        }
+
+        function getHydrationAdvice(temp, humidity) {
+            if (temp >= 35 || (temp >= 30 && humidity > 60)) {
+                return '<div class="p-3 bg-cyan-50 border-r-4 border-cyan-500 rounded"><p class="font-semibold text-cyan-800 mb-1">💧 الترطيب (مهم جداً)</p><p class="text-sm text-gray-700">• اشرب ماء كل 15-20 دقيقة<br>• احمل معك زجاجة ماء دائماً</p></div>';
+            }
+            if (temp >= 25) return '<div class="p-3 bg-cyan-50 border-r-4 border-cyan-400 rounded"><p class="font-semibold text-cyan-700 mb-1">💧 الترطيب</p><p class="text-sm text-gray-700">• اشرب ماء بانتظام</p></div>';
+            return '';
+        }
+
+        function getActivityAdvice(safety) {
+            if (safety === 'خطر') return '<div class="p-3 bg-red-50 border-r-4 border-red-600 rounded"><p class="font-semibold text-red-800 mb-1">⚠️ الأنشطة (غير آمن)</p><p class="text-sm text-gray-700">• يُفضل البقاء في المنزل<br>• تجنب الأنشطة الخارجية</p></div>';
+            if (safety === 'متوسط') return '<div class="p-3 bg-yellow-50 border-r-4 border-yellow-500 rounded"><p class="font-semibold text-yellow-800 mb-1">⚠️ الأنشطة (احذر)</p><p class="text-sm text-gray-700">• قلل من النشاط الخارجي<br>• خذ احتياطاتك</p></div>';
+            return '<div class="p-3 bg-green-50 border-r-4 border-green-600 rounded"><p class="font-semibold text-green-800 mb-1">✅ الأنشطة (آمن)</p><p class="text-sm text-gray-700">• الظروف ممتازة للنشاطات الخارجية</p></div>';
+        }
+
+        function getHealthAdvice(temp, humidity, wind) {
+            const heatIndex = temp + (0.5 * (humidity / 100) * temp);
+            if (heatIndex > 40) return '<div class="p-3 bg-purple-50 border-r-4 border-purple-500 rounded"><p class="font-semibold text-purple-800 mb-1">🏥 نصائح صحية (تحذير)</p><p class="text-sm text-gray-700">• خطر ضربة الشمس - كن حذراً جداً<br>• ابقَ في الظل</p></div>';
+            if (temp >= 35 || humidity > 80) return '<div class="p-3 bg-purple-50 border-r-4 border-purple-400 rounded"><p class="font-semibold text-purple-700 mb-1">🏥 نصائح صحية</p><p class="text-sm text-gray-700">• راقب صحتك<br>• خذ فترات راحة</p></div>';
+            if (wind > 12) return '<div class="p-3 bg-purple-50 border-r-4 border-purple-400 rounded"><p class="font-semibold text-purple-700 mb-1">🏥 نصائح صحية</p><p class="text-sm text-gray-700">• الرياح القوية قد تحمل الأتربة<br>• احمِ عينيك</p></div>';
+            return '';
+        }
+
+        function getPrecipitationAdvice(precip) {
+            if (precip > 20) return '<div class="p-3 bg-blue-50 border-r-4 border-blue-600 rounded"><p class="font-semibold text-blue-800 mb-1">🌧️ الأمطار (غزيرة)</p><p class="text-sm text-gray-700">• أمطار غزيرة متوقعة - ابقَ في مكان آمن</p></div>';
+            if (precip > 10) return '<div class="p-3 bg-blue-50 border-r-4 border-blue-500 rounded"><p class="font-semibold text-blue-700 mb-1">🌧️ الأمطار (متوسطة)</p><p class="text-sm text-gray-700">• أمطار متوقعة - خذ مظلة معك</p></div>';
+            if (precip > 2) return '<div class="p-3 bg-blue-50 border-r-4 border-blue-400 rounded"><p class="font-semibold text-blue-600 mb-1">☔ الأمطار (خفيفة)</p><p class="text-sm text-gray-700">• احتمال أمطار خفيفة</p></div>';
+            return '';
+        }
+
+        // استبدل الدالة الحالية الكاملة بهذا الكود:
+
+        async function loadNASAData() {
+            const place = document.getElementById('place').value;
+            const dateInput = document.getElementById('date').value;
+
+            if (!place || !dateInput) {
+                alert('الرجاء إدخال الموقع والتاريخ');
+                return;
+            }
+
+            const resultsContainer = document.getElementById('resultsContainer');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+
+            resultsContainer.classList.remove('hidden');
+            loadingOverlay.classList.remove('hidden');
+
+            try {
+                // 1. الحصول على الإحداثيات
+                let lat, lon;
+                const coords = place.split(',').map(s => s.trim());
+
+                if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+                    lat = parseFloat(coords[0]);
+                    lon = parseFloat(coords[1]);
+                } else {
+                    const geoResponse = await fetch(
+                        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(place)}&format=json&limit=1`
+                    );
+                    const geoData = await geoResponse.json();
+
+                    if (!geoData || geoData.length === 0) {
+                        throw new Error('❌ لم يتم العثور على الموقع. الرجاء التأكد من اسم المكان');
+                    }
+
+                    lat = parseFloat(geoData[0].lat);
+                    lon = parseFloat(geoData[0].lon);
+                }
+
+                // 2. التحقق من صحة الإحداثيات
+                if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+                    throw new Error('❌ إحداثيات غير صحيحة');
+                }
+
+                // 3. تنسيق التواريخ بشكل صحيح
+                const selectedDate = new Date(dateInput);
+                const startDate = new Date(selectedDate);
+                startDate.setDate(startDate.getDate() - 7); // بيانات 7 أيام سابقة للرسم البياني
+
+                const startStr = startDate.toISOString().split('T')[0].replace(/-/g, '');
+                const endStr = selectedDate.toISOString().split('T')[0].replace(/-/g, '');
+
+                console.log('طلب بيانات NASA:', {
+                    الإحداثيات: { lat, lon },
+                    الفترة: `${startStr} إلى ${endStr}`
+                });
+
+                // 4. طلب البيانات من NASA
+                const nasaUrl = `https://power.larc.nasa.gov/api/temporal/daily/point?` +
+                    `parameters=T2M,RH2M,WS2M,PRECTOTCORR&` +
+                    `community=RE&` +
+                    `longitude=${lon}&` +
+                    `latitude=${lat}&` +
+                    `start=${startStr}&` +
+                    `end=${endStr}&` +
+                    `format=JSON`;
+
+                const response = await fetch(nasaUrl);
+
+                if (!response.ok) {
+                    throw new Error(`فشل في جلب البيانات: ${response.status}`);
+                }
+
+                const nasaData = await response.json();
+
+                // 5. التحقق من وجود البيانات
+                if (!nasaData.properties || !nasaData.properties.parameter) {
+                    throw new Error('❌ لا توجد بيانات متاحة لهذا الموقع والتاريخ');
+                }
+
+                const params = nasaData.properties.parameter;
+                const dates = Object.keys(params.T2M).sort();
+
+                // 6. العثور على التاريخ المطلوب
+                const targetDate = dateInput.replace(/-/g, '');
+                let dataDate = dates.find(d => d === targetDate) || dates[dates.length - 1];
+
+                // 7. استخراج القيم مع معالجة القيم غير المتوفرة
+                const temp = params.T2M[dataDate] ?? 25;
+                const humidity = params.RH2M[dataDate] ?? 50;
+                const wind = params.WS2M[dataDate] ?? 3;
+                const precip = params.PRECTOTCORR[dataDate] ?? 0;
+
+                // 8. حساب مؤشر السلامة
+                let safety = 'آمن';
+                let safetyScore = 100;
+
+                if (temp < 5 || temp > 45) { safety = 'خطر'; safetyScore -= 50; }
+                else if (temp < 10 || temp > 40) { safety = 'متوسط'; safetyScore -= 30; }
+                else if (temp < 15 || temp > 35) { safetyScore -= 15; }
+
+                if (wind > 15) { safety = 'خطر'; safetyScore -= 40; }
+                else if (wind > 10) { safety = safety === 'آمن' ? 'متوسط' : safety; safetyScore -= 20; }
+                else if (wind > 7) { safetyScore -= 10; }
+
+                if (precip > 20) { safety = 'خطر'; safetyScore -= 40; }
+                else if (precip > 10) { safety = safety === 'آمن' ? 'متوسط' : safety; safetyScore -= 20; }
+                else if (precip > 5) { safetyScore -= 10; }
+
+                if (humidity > 90 && temp > 30) {
+                    safety = safety === 'آمن' ? 'متوسط' : safety;
+                    safetyScore -= 15;
+                }
+
+                safetyScore = Math.max(0, safetyScore);
+
+                // 9. إخفاء شاشة التحميل وعرض النتائج
+                loadingOverlay.classList.add('hidden');
+
+                // عرض النتائج مع كل المميزات
+                document.getElementById('results').innerHTML = `
+            <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-4 fade-in mb-6">
+                <div class="bg-gradient-to-br from-orange-400 to-red-500 text-white p-6 rounded-2xl text-center">
+                    <div class="text-4xl mb-2">🌡️</div>
+                    <div class="text-3xl font-bold">${temp.toFixed(1)}°C</div>
+                    <div class="text-sm opacity-90 mt-1">درجة الحرارة</div>
+                </div>
+                <div class="bg-gradient-to-br from-blue-400 to-cyan-500 text-white p-6 rounded-2xl text-center">
+                    <div class="text-4xl mb-2">💧</div>
+                    <div class="text-3xl font-bold">${humidity.toFixed(1)}%</div>
+                    <div class="text-sm opacity-90 mt-1">الرطوبة</div>
+                </div>
+                <div class="bg-gradient-to-br from-green-400 to-teal-500 text-white p-6 rounded-2xl text-center">
+                    <div class="text-4xl mb-2">💨</div>
+                    <div class="text-3xl font-bold">${wind.toFixed(1)} m/s</div>
+                    <div class="text-sm opacity-90 mt-1">سرعة الرياح</div>
+                </div>
+                <div class="bg-gradient-to-br from-indigo-400 to-blue-600 text-white p-6 rounded-2xl text-center">
+                    <div class="text-4xl mb-2">🌧️</div>
+                    <div class="text-3xl font-bold">${precip.toFixed(1)} mm</div>
+                    <div class="text-sm opacity-90 mt-1">معدل الأمطار</div>
+                </div>
+                <div class="bg-gradient-to-br ${safety === 'آمن' ? 'from-green-400 to-emerald-500' : safety === 'متوسط' ? 'from-yellow-400 to-orange-500' : 'from-red-400 to-pink-500'} text-white p-6 rounded-2xl text-center">
+                    <div class="text-4xl mb-2">${safety === 'آمن' ? '✅' : safety === 'متوسط' ? '⚠️' : '❌'}</div>
+                    <div class="text-3xl font-bold">${safety}</div>
+                    <div class="text-sm opacity-90 mt-1">مؤشر: ${safetyScore}%</div>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">📊 التحليل التفصيلي</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span>الحرارة:</span>
+                            <span class="font-bold">${temp > 40 ? 'حار جداً' : temp > 30 ? 'حار' : temp > 20 ? 'معتدل' : temp > 10 ? 'بارد' : 'بارد جداً'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>الرطوبة:</span>
+                            <span class="font-bold">${humidity > 80 ? 'رطب جداً' : humidity > 60 ? 'رطب' : humidity > 40 ? 'معتدل' : 'جاف'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>الرياح:</span>
+                            <span class="font-bold">${wind > 15 ? 'عاصفة قوية' : wind > 10 ? 'عاصفة' : wind > 7 ? 'نشطة' : 'هادئة'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>الأمطار:</span>
+                            <span class="font-bold">${precip > 20 ? 'غزيرة جداً' : precip > 10 ? 'عالية' : precip > 5 ? 'متوسطة' : 'منخفضة'}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">💡 نصائح وتوصيات مهمة</h3>
+                    <div class="space-y-3">
+                        ${getClothingAdvice(temp)}
+                        ${getHydrationAdvice(temp, humidity)}
+                        ${getActivityAdvice(safety)}
+                        ${getHealthAdvice(temp, humidity, wind)}
+                        ${getPrecipitationAdvice(precip)}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4 p-4 bg-blue-50 rounded-xl text-sm text-gray-700">
+                <p>📍 الموقع: ${lat.toFixed(4)}, ${lon.toFixed(4)} | 📅 التاريخ: ${dataDate.substring(0, 4)}-${dataDate.substring(4, 6)}-${dataDate.substring(6, 8)}</p>
+                <p class="text-xs text-gray-500 mt-1">🛰️ المصدر: NASA POWER Project</p>
+            </div>
+        `;
+
+                // 10. إعداد الرسم البياني
+                setupChart(params, dates);
+
+            } catch (error) {
+                loadingOverlay.classList.add('hidden');
+                console.error('تفاصيل الخطأ:', error);
+                alert(`❌ حدث خطأ: ${error.message}`);
+            }
+        }
+
+
+        // Initialize map on load
+        window.addEventListener('load', initMap);
+        window.addEventListener('resize', () => {
+            if (map) {
+                map.invalidateSize();
+            }
+        });
+        // Filter Trips
+        function filterTrips(category) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const filteredTrips = category === 'الكل' ? tripsData : tripsData.filter(trip => trip.category === category);
+            displayTrips(filteredTrips);
+        }
+
+        // Display Trips
+        function displayTrips(trips) {
+            const container = document.getElementById('tripsContainer');
+            container.innerHTML = trips.map(trip => `
+                <div class="trip-card bg-white rounded-2xl shadow-xl overflow-hidden" onclick="openModal(${trip.id})">
+                    <img src="${trip.image}" alt="${trip.title}" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2" style="color: var(--color-dark-gray);">${trip.title}</h3>
+                        <p class="text-sm font-semibold mb-3" style="color: var(--color-green);">${trip.company}</p>
+                                ${trip.rating} <span class="text-xl">★</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Get Recommended Trip Based on Current Month
+        function getRecommendedTrip() {
+            const currentMonth = new Date().getMonth() + 1;
+
+            const monthRecommendations = {
+                10: {
+                    tripId: 7,
+                    reason: 'الطقس معتدل والحرارة مثالية (25-30°C) - أفضل وقت لزيارة المعابد الفرعونية',
+                    weather: { temp: 28, condition: 'مشمس ومعتدل', humidity: 45, wind: 3.2 }
+                },
+                11: {
+                    tripId: 1,
+                    reason: 'أفضل وقت للرحلات الصحراوية - الجو بارد ليلاً ومعتدل نهاراً',
+                    weather: { temp: 22, condition: 'مثالي للصحراء', humidity: 35, wind: 2.8 }
+                },
+                12: {
+                    tripId: 4,
+                    reason: 'موسم الغوص الذهبي - المياه صافية والحرارة مثالية',
+                    weather: { temp: 23, condition: 'مثالي للغوص', humidity: 55, wind: 3.5 }
+                },
+                1: {
+                    tripId: 5,
+                    reason: 'رحلة نيلية رومانسية في الطقس البارد المنعش',
+                    weather: { temp: 18, condition: 'بارد ومنعش', humidity: 50, wind: 2.5 }
+                },
+                2: {
+                    tripId: 8,
+                    reason: 'زيارة الأهرامات في طقس رائع بعيداً عن الزحام',
+                    weather: { temp: 21, condition: 'معتدل وجاف', humidity: 40, wind: 3.0 }
+                },
+                3: {
+                    tripId: 9,
+                    reason: 'الربيع في الإسكندرية - طقس رائع ونسيم البحر',
+                    weather: { temp: 22, condition: 'ربيعي منعش', humidity: 60, wind: 4.0 }
+                },
+                4: {
+                    tripId: 2,
+                    reason: 'الواحات البحرية في ذروة جمالها - حرارة معتدلة',
+                    weather: { temp: 27, condition: 'دافئ وجاف', humidity: 30, wind: 3.2 }
+                },
+                5: {
+                    tripId: 6,
+                    reason: 'دهب قبل الصيف الحار - مثالي للسنوركلينج',
+                    weather: { temp: 29, condition: 'دافئ ومشمس', humidity: 45, wind: 3.8 }
+                },
+                6: {
+                    tripId: 6,
+                    reason: 'البحر الأحمر المنعش في الصيف',
+                    weather: { temp: 32, condition: 'حار ومشمس', humidity: 50, wind: 4.2 }
+                },
+                7: {
+                    tripId: 4,
+                    reason: 'الغوص في شرم - الماء دافئ والرؤية ممتازة',
+                    weather: { temp: 35, condition: 'حار جداً', humidity: 55, wind: 3.5 }
+                },
+                8: {
+                    tripId: 9,
+                    reason: 'الإسكندرية الساحلية - أبرد من القاهرة',
+                    weather: { temp: 30, condition: 'حار مع نسيم', humidity: 65, wind: 4.5 }
+                },
+                9: {
+                    tripId: 3,
+                    reason: 'الفيوم بعد الصيف - طقس معتدل ومناسب للتخييم',
+                    weather: { temp: 29, condition: 'معتدل ومشمس', humidity: 40, wind: 3.0 }
+                }
+            };
+
+            const recommendation = monthRecommendations[currentMonth] || monthRecommendations[10];
+            const trip = tripsData.find(t => t.id === recommendation.tripId);
+
+            if (!trip) {
+                console.error('Trip not found for recommendation');
+                return null;
+            }
+
+            return { trip, reason: recommendation.reason, weather: recommendation.weather };
+        }
+
+        // Display Recommended Trip
+        function displayRecommendedTrip() {
+            const recommendation = getRecommendedTrip();
+            if (!recommendation) return;
+            const { trip, reason, weather } = recommendation;
+            <div class="p-8 md:p-10">
+                <div class="mb-6">
+                    <span class="bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2 rounded-full font-bold text-sm">${trip.category}</span>
+                </div>
+
+                <h3 class="text-3xl md:text-4xl font-black mb-4" style="color: var(--color-dark-gray);">${trip.title}</h3>
+                <p class="text-gray-600 mb-6 text-lg leading-relaxed">${trip.description}</p>
+
+                <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 mb-6">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="text-2xl">💡</span>
+                        <h4 class="text-xl font-bold text-gray-800">لماذا هذا الشهر؟</h4>
+                    </div>
+                    <p class="text-gray-700 font-semibold mb-4">${reason}</p>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white p-3 rounded-xl text-center">
+                            <div class="text-2xl mb-1">🌡️</div>
+                            <div class="text-2xl font-black text-orange-500">${weather.temp}°C</div>
+                            <div class="text-xs text-gray-600">درجة الحرارة</div>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl text-center">
+                            <div class="text-2xl mb-1">☀️</div>
+                            <div class="text-sm font-bold text-gray-800">${weather.condition}</div>
+                            <div class="text-xs text-gray-600">حالة الطقس</div>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl text-center">
+                            <div class="text-2xl mb-1">💧</div>
+                            <div class="text-2xl font-black text-blue-500">${weather.humidity}%</div>
+                            <div class="text-xs text-gray-600">الرطوبة</div>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl text-center">
+                            <div class="text-2xl mb-1">💨</div>
+                            <div class="text-2xl font-black text-teal-500">${weather.wind} m/s</div>
+                            <div class="text-xs text-gray-600">الرياح</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            const container = document.getElementById('recommendedTrip');
+            container.innerHTML =
+                `<div class="relative rounded-3xl overflow-hidden shadow-xl">
+                    <img src="${trip.image}" alt="${trip.title}" class="w-full h-64 md:h-80 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-8">
+                        <h2 class="text-4xl md:text-5xl font-black text-white">${trip.title}</h2>
+                    </div>
+                    <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold text-gray-800 shadow-md">
+                        التوصية الشهرية
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-2xl font-bold mb-4" style="color: var(--color-dark-gray);">رحلة موصى بها لهذا الشهر</h3>
+                    <p class="text-gray-600 mb-6 text-lg leading-relaxed">${trip.description}</p>
+                    <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 mb-6">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="text-2xl">💡</span>
+                            <h4 class="text-xl font-bold text-gray-800">لماذا هذا الشهر؟</h4>
+                        </div>
+                        <p class="text-gray-700 font-semibold mb-4">${reason}</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-white p-3 rounded-xl text-center">
+                                <div class="text-2xl mb-1">🌡️</div>
+                                <div class="text-2xl font-black text-orange-500">${weather.temp}°C</div>
+                                <div class="text-xs text-gray-600">درجة الحرارة</div>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl text-center">
+                                <div class="text-2xl mb-1">☀️</div>
+                                <div class="text-sm font-bold text-gray-800">${weather.condition}</div>
+                                <div class="text-xs text-gray-600">حالة الطقس</div>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl text-center">
+                                <div class="text-2xl mb-1">💧</div>
+                                <div class="text-2xl font-black text-blue-500">${weather.humidity}%</div>
+                                <div class="text-xs text-gray-600">الرطوبة</div>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl text-center">
+                                <div class="text-2xl mb-1">💨</div>
+                                <div class="text-2xl font-black text-teal-500">${weather.wind} m/s</div>
+                                <div class="text-xs text-gray-600">الرياح</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="openModal(${trip.id})" class="flex-1 py-4 btn-primary text-white font-bold rounded-xl hover:shadow-xl transition transform hover:scale-105">
+                            عرض التفاصيل
+                        </button>
+                    </div>
+                </div>`;
+        }
+
+        // Open Modal
+        function openModal(tripId) {
+            if (!currentUser) {
+                alert('الرجاء تسجيل الدخول أولاً لعرض تفاصيل الرحلة');
+                return;
+            }
+
+            const trip = tripsData.find(t => t.id === tripId);
+            if (!trip) return;
+
+            const modal = document.getElementById('tripModal');
+            const modalContent = document.getElementById('modalContent');
+
+            modalContent.innerHTML = `
+                <div class="relative">
+                    <img src="${trip.image}" alt="${trip.title}" class="w-full h-80 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-8">
+                        <h2 class="text-4xl font-black text-white">${trip.title}</h2>
+                    </div>
+                </div>
+                <div class="p-8">
+                    <div class="flex items-center gap-4 mb-6">
+                        <span class="bg-green-100 text-green-700 px-4 py-2 rounded-full font-bold">${trip.category}</span>
+                        <span class="flex items-center gap-1 text-yellow-500 font-bold text-lg">
+                            ${trip.rating} <span class="text-xl">★</span>
+                        </span>
+                        <span class="text-gray-600 font-semibold">${trip.company}</span>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-6 leading-relaxed text-lg">${trip.description}</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-4 mb-6">
+                        <div class="flex items-center gap-3 bg-blue-50 p-4 rounded-xl">
+                            <span class="text-2xl">📅</span>
+                            <div>
+                                <p class="font-bold text-gray-800">المدة</p>
+                                <p class="text-gray-600">${trip.duration}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 bg-purple-50 p-4 rounded-xl">
+                            <span class="text-2xl">📍</span>
+                            <div>
+                                <p class="font-bold text-gray-800">الموقع</p>
+                                <p class="text-gray-600">${trip.location}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 bg-green-50 p-4 rounded-xl">
+                            <span class="text-2xl">🗓️</span>
+                            <div>
+                                <p class="font-bold text-gray-800">تاريخ البداية</p>
+                                <p class="text-gray-600">${trip.startDate}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 bg-orange-50 p-4 rounded-xl">
+                            <span class="text-2xl">🏁</span>
+                            <div>
+                                <p class="font-bold text-gray-800">تاريخ النهاية</p>
+                                <p class="text-gray-600">${trip.endDate}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-2xl p-6 mb-6">
+                        <h4 class="text-xl font-bold text-gray-800 mb-4">تشمل الرحلة</h4>
+                        <div class="grid md:grid-cols-2 gap-3">
+                            ${trip.includes.map(item => `
+                                <div class="flex items-center gap-2 text-gray-700">
+                                    <span class="text-green-500 text-xl">✓</span>
+                                    <span>${item}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <button onclick="showWeatherForTrip(${trip.id})" class="w-full mb-4 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold rounded-xl hover:shadow-xl transition">
+                        🌤️ عرض توقعات الطقس للرحلة
+                    </button>
+                    
+                
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+        }
+
+        // Close Modal
+        function closeModal() {
+            document.getElementById('tripModal').classList.add('hidden');
+        }
+
+        // Show Weather for Trip
+        function showWeatherForTrip(tripId) {
+            const trip = tripsData.find(t => t.id === tripId);
+            if (!trip) return;
+
+            const days = Math.ceil((new Date(trip.endDate) - new Date(trip.startDate)) / (1000 * 60 * 60 * 24)) + 1;
+            const weatherDays = [];
+
+            for (let i = 0; i < days; i++) {
+                weatherDays.push({
+                    day: `يوم ${i + 1}`,
+                    temp: Math.floor(Math.random() * 15) + 20,
+                    condition: ['مشمس', 'غائم جزئياً', 'صافي', 'غائم'][Math.floor(Math.random() * 4)],
+                    icon: ['☀️', '⛅', '🌤️', '☁️'][Math.floor(Math.random() * 4)]
+                });
+            }
+
+            const weatherHTML = `
+                <div class="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-2xl mb-6 fade-in">
+                    <h4 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        🌤️ توقعات الطقس من ${trip.startDate} إلى ${trip.endDate}
+                    </h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        ${weatherDays.map(w => `
+                            <div class="bg-white p-4 rounded-xl text-center shadow-md">
+                                <div class="text-3xl mb-2">${w.icon}</div>
+                                <div class="font-bold text-gray-800">${w.day}</div>
+                                <div class="text-2xl font-black text-orange-500">${w.temp}°C</div>
+                                <div class="text-sm text-gray-600">${w.condition}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="mt-4 p-4 bg-green-100 border-r-4 border-green-500 rounded-lg">
+                        <p class="text-green-800 font-semibold">✅ الطقس مناسب تماماً للرحلة!</p>
+                    </div>
+                </div>
+            `;
+
+            const modalContent = document.getElementById('modalContent');
+            const existingWeather = modalContent.querySelector('.bg-gradient-to-br.from-blue-50');
+            if (existingWeather) {
+                existingWeather.remove();
+            }
+
+            const insertPoint = modalContent.querySelector('.border-t.pt-6').parentElement;
+            insertPoint.insertAdjacentHTML('beforeend', weatherHTML);
+        }
+
+
+        // Send Contact Message
+        function sendMessage(event) {
+            event.preventDefault();
+            const name = document.getElementById('contactName').value;
+            const email = document.getElementById('contactEmail').value;
+            const message = document.getElementById('contactMessage').value;
+            const statusDiv = document.getElementById('contactMessageStatus');
+
+            statusDiv.classList.remove('hidden', 'text-green-600', 'text-red-600');
+            statusDiv.classList.add('text-blue-600');
+            statusDiv.textContent = 'جاري إرسال رسالتك...';
+
+            setTimeout(() => {
+                statusDiv.classList.remove('text-blue-600');
+                statusDiv.classList.add('text-green-600');
+                statusDiv.textContent = `شكراً لك يا ${name}! تم استلام رسالتك بنجاح وسنتواصل معك قريباً على ${email}`;
+
+                document.getElementById('contactName').value = '';
+                document.getElementById('contactEmail').value = '';
+                document.getElementById('contactMessage').value = '';
+
+                setTimeout(() => {
+                    statusDiv.classList.add('hidden');
+                }, 5000);
+            }, 2000);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+            filterTrips('الكل');
+
+            setTimeout(() => {
+                displayRecommendedTrip();
+            }, 100);
+
+            setTimeout(initMap, 1000);
+
+            const nasaLinks = document.querySelectorAll('a[href="#nasa-dashboard"]');
+            nasaLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    setTimeout(() => {
+                        if (map) {
+                            map.invalidateSize();
+                            console.log('Map resized after navigation');
+                        } else {
+                            initMap();
+                        }
+                    }, 500);
+                });
+            });
+        });
+        function resetSurvey() {
+            const confirmReset = confirm(
+                currentLanguage === 'ar'
+                    ? 'هل تريد حقاً إعادة الاستبيان؟ سيتم حذف إجاباتك السابقة.'
+                    : 'Do you really want to retake the survey? Your previous answers will be deleted.'
+            );
+
+            if (confirmReset) {
+                localStorage.removeItem('surveyCompleted');
+                localStorage.removeItem('surveyData');
+
+                // Reset survey to step 1
+                currentSurveyStep = 1;
+                surveyData = { age: null, interests: [], tripType: null, children: null, };
+
+                // Reset all steps
+                document.querySelectorAll('.survey-step').forEach(step => step.classList.remove('active'));
+                document.querySelector('[data-step="1"]').classList.add('active');
+
+                // Reset buttons selection
+                document.querySelectorAll('.interest-btn.selected').forEach(btn => btn.classList.remove('selected'));
+
+                // Reset progress bar
+                updateProgress();
+                document.getElementById('prevBtn').style.display = 'none';
+
+                // Show survey modal
+                document.getElementById('surveyModal').style.display = 'flex';
+
+                // Hide reset button
+                document.getElementById('resetSurveyBtn').style.display = 'none';
+            }
+        }
+
+        function checkSurveyStatus() {
+            const surveyCompleted = localStorage.getItem('surveyCompleted');
+            const resetBtn = document.getElementById('resetSurveyBtn');
+
+            if (surveyCompleted && resetBtn) {
+                resetBtn.style.display = 'block';
+            }
+        }
+        window.addEventListener('load', () => {
+            if (!map) {
+                setTimeout(initMap, 500);
+            }
+        });
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => console.log('✅ PWA جاهز!', reg))
+                    .catch(err => console.error('❌ خطأ:', err));
+            });
+        }
+
+        // زر التثبيت
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+
+            // إظهار رسالة للمستخدم
+            const installBtn = document.createElement('button');
+            installBtn.textContent = '📱 ثبت التطبيق';
+            installBtn.className = 'fixed bottom-4 left-4 px-6 py-3 bg-green-600 text-white rounded-full shadow-2xl z-50 font-bold';
+            installBtn.onclick = () => {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((result) => {
+                    if (result.outcome === 'accepted') {
+                        console.log('تم التثبيت!');
+                    }
+                    installBtn.remove();
+                });
+            };
+            document.body.appendChild(installBtn);
+        });
+    </script>
+
+    <script>
+        // Translation & Survey System
+        let currentLanguage = localStorage.getItem('language') || 'ar';
+        let surveyData = { age: null, interests: [], tripType: null, children: null };
+        let currentSurveyStep = 1;
+
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'ar' ? 'en' : 'ar';
+            localStorage.setItem('language', currentLanguage);
+            document.documentElement.lang = currentLanguage;
+            document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('langText').textContent = currentLanguage === 'ar' ? 'English' : 'العربية';
+
+            document.querySelectorAll('[data-ar][data-en]').forEach(el => {
+                el.textContent = el.getAttribute(`data-${currentLanguage}`);
+            });
+        }
+        // ترجمة العناصر الإضافية
+        const extraTranslations = {
+            'ar': {
+                'heroTitle1': 'استكشف مصر مع',
+                'heroTitle2': 'SaFe Safari',
+                'heroSubtitle': 'رحلات آمنة ومميزة مع أفضل الشركات السياحية في مصر',
+                'exploreBtn': 'استكشف الرحلات',
+                'weatherBtn': 'توقعات الطقس'
+            },
+            'en': {
+                'heroTitle1': 'Explore Egypt with',
+                'heroTitle2': 'SaFe Safari',
+                'heroSubtitle': 'Safe and premium trips with the best tourism companies in Egypt',
+                'exploreBtn': 'Explore Trips',
+                'weatherBtn': 'Weather Forecast'
+            }
+        };
+
+        // تطبيق الترجمات الإضافية
+        const translations = extraTranslations[currentLanguage];
+        Object.keys(translations).forEach(key => {
+            const element = document.querySelector(`[data-translate="${key}"]`);
+            if (element) {
+                element.textContent = translations[key];
+            }
+        });
+
+
+        function showSurvey() {
+            if (!localStorage.getItem('surveyCompleted')) {
+                document.getElementById('surveyModal').style.display = 'flex';
+            }
+        }
+
+        function selectAge(age) {
+            surveyData.age = age;
+            nextStep();
+        }
+
+        function toggleInterest(interest) {
+            const btn = event.target.closest('.interest-btn');
+            btn.classList.toggle('selected');
+            const idx = surveyData.interests.indexOf(interest);
+            if (idx > -1) surveyData.interests.splice(idx, 1);
+            else surveyData.interests.push(interest);
+        }
+
+        function selectTripType(type) {
+            surveyData.tripType = type;
+            nextStep();
+        }
+
+        function selectChildren(hasChildren) {
+            surveyData.children = hasChildren === 'yes';
+            completeSurvey();
+        }
+
+
+        function nextStep() {
+            if (currentSurveyStep < 4) {
+                document.querySelector(`[data-step="${currentSurveyStep}"]`).classList.remove('active');
+                currentSurveyStep++;
+                document.querySelector(`[data-step="${currentSurveyStep}"]`).classList.add('active');
+                updateProgress();
+                document.getElementById('prevBtn').style.display = 'block';
+            }
+        }
+
+        function prevStep() {
+            if (currentSurveyStep > 1) {
+                document.querySelector(`[data-step="${currentSurveyStep}"]`).classList.remove('active');
+                currentSurveyStep--;
+                document.querySelector(`[data-step="${currentSurveyStep}"]`).classList.add('active');
+                updateProgress();
+                if (currentSurveyStep === 1) document.getElementById('prevBtn').style.display = 'none';
+            }
+        }
+
+        function updateProgress() {
+            const percent = (currentSurveyStep / 4) * 100;
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('currentStep').textContent = currentSurveyStep;
+            document.getElementById('progressPercent').textContent = Math.round(percent);
+        }
+
+        function skipSurvey() {
+            localStorage.setItem('surveyCompleted', 'skipped');
+            document.getElementById('surveyModal').style.display = 'none';
+            checkSurveyStatus();
+        }
+
+        function completeSurvey() {
+            localStorage.setItem('surveyCompleted', 'true');
+            localStorage.setItem('surveyData', JSON.stringify(surveyData));
+            document.getElementById('surveyModal').style.display = 'none';
+            checkSurveyStatus();
+
+            if (typeof displayRecommendedTrip === 'function') {
+                displayRecommendedTrip();
+            }
+        }
+        // إظهار رسالة نجاح والعودة للصفحة الرئيسية
+        setTimeout(() => {
+            alert(currentLanguage === 'ar' ? '🎉 شكراً لك! تم تحليل اهتماماتك بنجاح. ستجد توصيات مخصصة لك أدناه.' : '🎉 Thank you! Your interests have been analyzed successfully. You will find personalized recommendations below.');
+
+            // تحديث التوصيات
+            if (typeof displayRecommendedTrip === 'function') {
+                displayRecommendedTrip();
+            }
+
+            // التمرير للقسم الرئيسي
+            document.getElementById('recommendations').scrollIntoView({ behavior: 'smooth' });
+        }, 500);
+        // Initialize on load
+        window.addEventListener('load', () => {
+            toggleLanguage(); // Apply saved language
+            setTimeout(showSurvey, 2000); // Show survey after 2 seconds
+            checkSurveyStatus();
+        });
+
+        // Modify existing displayRecommendedTrip function
+        const originalDisplayRecommendedTrip = window.displayRecommendedTrip;
+
+        // استبدل دالة displayRecommendedTrip المخصصة بالكود التالي:
+        window.displayRecommendedTrip = function () {
+            const savedData = localStorage.getItem('surveyData');
+            const container = document.getElementById('recommendedTripContainer');
+            if (!container) return;
+
+            let recommendedTrip;
+            let recommendationReason = '';
+
+            if (savedData) {
+                const data = JSON.parse(savedData);
+
+                // فلترة الرحلات بناءً على البيانات
+                const filteredTrips = tripsData.filter(trip => {
+                    // مطابقة نوع الرحلة
+                    const matchesType = data.tripType ? trip.category === data.tripType : true;
+
+                    // مطابقة الاهتمامات
+                    let matchesInterest = true;
+                    if (data.interests && data.interests.length > 0) {
+                        const interestMap = {
+                            'adventure': ['صحراوية', 'بحرية'],
+                            'history': ['أثرية'],
+                            'beach': ['بحرية'],
+                            'nature': ['صحراوية', 'بحرية'],
+                            'culture': ['أثرية'],
+                            'relaxation': ['بحرية']
+                        };
+
+                        matchesInterest = data.interests.some(interest =>
+                            interestMap[interest]?.includes(trip.category)
+                        );
+                    }
+
+                    return matchesType && matchesInterest;
+                });
+
+                recommendedTrip = filteredTrips.length > 0 ? filteredTrips[0] : tripsData[0];
+
+                // سبب التوصية بناءً على البيانات
+                recommendationReason = `مخصص لك بناءً على `;
+                if (data.tripType) {
+                    recommendationReason += `اهتمامك بالرحلات ${data.tripType}`;
+                }
+                if (data.interests && data.interests.length > 0) {
+                    const interestNames = {
+                        'adventure': 'المغامرة',
+                        'history': 'التاريخ',
+                        'beach': 'الشواطئ',
+                        'nature': 'الطبيعة',
+                        'culture': 'الثقافة',
+                        'relaxation': 'الاسترخاء'
+                    };
+                    recommendationReason += data.tripType ? ` و` : ``;
+                    recommendationReason += `اهتماماتك بـ ${data.interests.map(i => interestNames[i]).join('، ')}`;
+                }
+
+                const discount = data.children ? 10 : 0;
+
+                // عرض التوصية المخصصة
+                container.innerHTML = `
+            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden fade-in">
+                <div class="bg-gradient-to-r from-purple-600 to-pink-600 p-6 text-white text-center">
+                    <div class="text-4xl mb-2">🎯</div>
+                    <h3 class="text-2xl font-bold">رحلة مختارة خصيصاً لك</h3>
+                    <p class="text-sm mt-2 opacity-90">${recommendationReason}</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-0">
+                    <div class="relative h-96 md:h-auto">
+                        <img src="${recommendedTrip.image}" alt="${recommendedTrip.title}" class="w-full h-full object-cover">
+                        <div class="absolute top-4 right-4 bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-full font-bold text-lg shadow-lg">
+                            ${discount > 0 ? `${discount}% خصم عائلي` : 'مثالي لك'}
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <h4 class="text-3xl font-black mb-4" style="color: var(--color-dark-gray);">${recommendedTrip.title}</h4>
+                        <p class="text-gray-600 mb-6">${recommendedTrip.description}</p>
+                        <div class="grid grid-cols-2 gap-3 mb-6">
+                            <div class="bg-blue-50 p-4 rounded-xl">
+                                <div class="text-2xl mb-1">📅</div>
+                                <div class="font-bold text-gray-800">المدة</div>
+                                <div class="text-sm text-gray-600">${recommendedTrip.duration}</div>
+                            </div>
+                            <div class="bg-purple-50 p-4 rounded-xl">
+                                <div class="text-2xl mb-1">📍</div>
+                                <div class="font-bold text-gray-800">الموقع</div>
+                                <div class="text-sm text-gray-600">${recommendedTrip.location}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between border-t pt-6">
+                            <button onclick="openModal(${recommendedTrip.id})" class="px-8 py-4 btn-primary text-white font-bold rounded-xl hover:shadow-xl transition">احجز الآن</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+            } else {
+                // إذا لا توجد بيانات استبيان، عرض التوصية الشهرية العادية
+                const recommendation = getRecommendedTrip();
+                if (recommendation) {
+                    const { trip, reason, weather } = recommendation;
+                    container.innerHTML = `
+                <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+                    <div class="relative h-64 md:h-80">
+                        <img src="${trip.image}" alt="${trip.title}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-8">
+                            <h2 class="text-4xl md:text-5xl font-black text-white">${trip.title}</h2>
+                        </div>
+                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold text-gray-800 shadow-md">
+                            التوصية الشهرية
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <h3 class="text-2xl font-bold mb-4" style="color: var(--color-dark-gray);">رحلة موصى بها لهذا الشهر</h3>
+                        <p class="text-gray-600 mb-6 text-lg leading-relaxed">${trip.description}</p>
+                        <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 mb-6">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="text-2xl">💡</span>
+                                <h4 class="text-xl font-bold text-gray-800">لماذا هذا الشهر؟</h4>
+                            </div>
+                            <p class="text-gray-700 font-semibold mb-4">${reason}</p>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-white p-3 rounded-xl text-center">
+                                    <div class="text-2xl mb-1">🌡️</div>
+                                    <div class="text-2xl font-black text-orange-500">${weather.temp}°C</div>
+                                    <div class="text-xs text-gray-600">درجة الحرارة</div>
+                                </div>
+                                <div class="bg-white p-3 rounded-xl text-center">
+                                    <div class="text-2xl mb-1">☀️</div>
+                                    <div class="text-sm font-bold text-gray-800">${weather.condition}</div>
+                                    <div class="text-xs text-gray-600">حالة الطقس</div>
+                                </div>
+                                <div class="bg-white p-3 rounded-xl text-center">
+                                    <div class="text-2xl mb-1">💧</div>
+                                    <div class="text-2xl font-black text-blue-500">${weather.humidity}%</div>
+                                    <div class="text-xs text-gray-600">الرطوبة</div>
+                                </div>
+                                <div class="bg-white p-3 rounded-xl text-center">
+                                    <div class="text-2xl mb-1">💨</div>
+                                    <div class="text-2xl font-black text-teal-500">${weather.wind} m/s</div>
+                                    <div class="text-xs text-gray-600">الرياح</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="openModal(${trip.id})" class="flex-1 py-4 btn-primary text-white font-bold rounded-xl hover:shadow-xl transition transform hover:scale-105">
+                                عرض التفاصيل
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+                }
+            }
+        };
+    </script>
+</body>
+
+</html>

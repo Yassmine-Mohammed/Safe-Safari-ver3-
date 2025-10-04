@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <!-- إلى هذا -->
+<a href="./index.html">الرئيسية</a>
+<a href="./weather.html">الطقس</a>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4A7C59">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/Y0G8B7Jy/logo.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/Y0G8B7Jy/logo.png">
+    <title>اتصل بنا - SaFe Safari</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
+        * {
+            font-family: 'Cairo', sans-serif;
+        }
+
+        :root {
+            --color-beige: #dfb995;
+            --color-dark-gray: #4A4A4A;
+            --color-gold: #f8ae0f;
+            --color-green: #4A7C59;
+            --color-green-dark: #3d6449;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        nav {
+            backdrop-filter: blur(10px);
+            background: rgba(232, 221, 211, 0.95);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-green), var(--color-green-dark));
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-8">
+                    <a href="index.html" class="flex items-center gap-2">
+                        <img src="https://i.ibb.co/d4ftYF1f/Whats-App-Image-2025-09-25-at-08-11-18-0042ce8a.jpg"
+                            alt="Logo" class="w-12 h-12 object-contain rounded-full">
+                        <span class="text-2xl font-bold" style="color: var(--color-green);">SaFe Safari</span>
+                    </a>
+                    <div class="hidden md:flex gap-6">
+                        <a href="index.html" class="font-semibold transition hover:text-green-600"
+                            style="color: var(--color-dark-gray);">الرئيسية</a>
+                        <a href="weather.html" class="font-semibold transition hover:text-green-600"
+                            style="color: var(--color-dark-gray);">توقعات الطقس</a>
+                        <a href="trips.html" class="font-semibold transition hover:text-green-600"
+                            style="color: var(--color-dark-gray);">الرحلات</a>
+                        <a href="contact.html" class="font-semibold transition hover:text-green-600"
+                            style="color: var(--color-green);">اتصل بنا</a>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div id="userInfo" class="hidden items-center gap-3">
+                        <img id="userPhoto" class="w-10 h-10 rounded-full border-2"
+                            style="border-color: var(--color-gold);" alt="User">
+                        <span id="userName" class="font-semibold" style="color: var(--color-dark-gray);"></span>
+                        <button onclick="signOut()"
+                            class="px-4 py-2 rounded-lg transition text-red-600 hover:bg-red-50">تسجيل خروج</button>
+                    </div>
+                    <button id="signInBtn" onclick="signInWithGoogle()"
+                        class="px-6 py-2 btn-primary text-white font-bold rounded-lg hover:shadow-lg transition">تسجيل دخول</button>
+                    <button class="md:hidden text-2xl" style="color: var(--color-dark-gray);"
+                        onclick="toggleMobileMenu()">☰</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden fixed top-20 left-0 right-0 bg-white shadow-lg z-40 md:hidden">
+        <div class="container mx-auto px-6 py-4 flex flex-col gap-4">
+            <a href="index.html" class="font-semibold" style="color: var(--color-dark-gray);">الرئيسية</a>
+            <a href="weather.html" class="font-semibold" style="color: var(--color-dark-gray);">توقعات الطقس</a>
+            <a href="trips.html" class="font-semibold" style="color: var(--color-dark-gray);">الرحلات</a>
+            <a href="contact.html" class="font-semibold" style="color: var(--color-green);">اتصل بنا</a>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <section class="py-20 pt-32 bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl md:text-5xl font-black mb-4" style="color: var(--color-dark-gray);">اتصل بنا</h2>
+                <p class="text-xl text-gray-600">نحن هنا لمساعدتك</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+                <div class="space-y-8">
+                    <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition">
+                        <div class="flex items-center gap-4">
+                            <div class="text-4xl bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full w-16 h-16 flex items-center justify-center">📍</div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-1">العنوان</h3>
+                                <p class="text-gray-600">جامعة سوهاج، سوهاج، مصر</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition">
+                        <div class="flex items-center gap-4">
+                            <div class="text-4xl bg-gradient-to-br from-green-400 to-blue-500 rounded-full w-16 h-16 flex items-center justify-center">📞</div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-1">اتصل بنا</h3>
+                                <p class="text-gray-600">+20 100 123 4567</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition">
+                        <div class="flex items-center gap-4">
+                            <div class="text-4xl bg-gradient-to-br from-purple-400 to-pink-500 rounded-full w-16 h-16 flex items-center justify-center">✉️</div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-1">البريد الإلكتروني</h3>
+                                <p class="text-gray-600">safesafari@gmail.com</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-xl">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">أرسل لنا رسالة</h3>
+                    <form onsubmit="sendMessage(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">الاسم</label>
+                            <input type="text" id="contactName"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-green-500 focus:border-green-500 transition"
+                                placeholder="اسمك الكامل" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">البريد الإلكتروني</label>
+                            <input type="email" id="contactEmail"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-green-500 focus:border-green-500 transition"
+                                placeholder="example@domain.com" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">الرسالة</label>
+                            <textarea id="contactMessage" rows="4"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-green-500 focus:border-green-500 transition"
+                                placeholder="اكتب رسالتك هنا..." required></textarea>
+                        </div>
+                        <button type="submit"
+                            class="w-full py-4 btn-primary text-white font-bold rounded-xl hover:shadow-lg transition">أرسل الرسالة</button>
+                    </form>
+                    <div id="contactMessageStatus" class="mt-4 text-center font-semibold hidden"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8 border-b border-gray-700 pb-8 mb-8">
+                <div>
+                    <a href="index.html" class="flex items-center gap-2 mb-4">
+                        <img src="https://i.postimg.cc/Y0G8B7Jy/logo.png" alt="Logo" class="w-10 h-10 object-contain">
+                        <span class="text-xl font-bold" style="color: var(--color-beige);">SaFe Safari</span>
+                    </a>
+                    <p class="text-gray-400">رحلات آمنة ومميزة لاكتشاف جمال مصر.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" style="color: var(--color-gold);">روابط سريعة</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="index.html" class="hover:text-white transition">الرئيسية</a></li>
+                        <li><a href="weather.html" class="hover:text-white transition">توقعات الطقس</a></li>
+                        <li><a href="trips.html" class="hover:text-white transition">الرحلات</a></li>
+                        <li><a href="contact.html" class="hover:text-white transition">اتصل بنا</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" style="color: var(--color-gold);">خدماتنا</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="trips.html" class="hover:text-white transition">حجز الرحلات</a></li>
+                        <li><a href="weather.html" class="hover:text-white transition">بيانات الطقس من ناسا</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" style="color: var(--color-gold);">تابعنا</h4>
+                    <div class="flex gap-4 text-2xl">
+                        <a href="#" class="hover:text-blue-400 transition">📘</a>
+                        <a href="#" class="hover:text-sky-400 transition">🦅</a>
+                        <a href="#" class="hover:text-pink-600 transition">📷</a>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center text-gray-400">
+                &copy; <span id="currentYear"></span> SaFe Safari. جميع الحقوق محفوظة.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVzQXcCR742QhzQ74jlE6c7SWmcG0vF7I",
+            authDomain: "safe-safari-44beb.firebaseapp.com",
+            projectId: "safe-safari-44beb",
+            storageBucket: "safe-safari-44beb.appspot.com",
+            messagingSenderId: "1026020215603",
+            appId: "1:1026020215603:web:52e97cdb254ede492ccc46"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        let currentUser = null;
+
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        }
+
+        firebase.auth().onAuthStateChanged((user) => {
+            currentUser = user;
+            const userInfo = document.getElementById('userInfo');
+            const signInBtn = document.getElementById('signInBtn');
+            if (user) {
+                signInBtn.classList.add('hidden');
+                userInfo.classList.remove('hidden');
+                userInfo.classList.add('flex');
+                document.getElementById('userName').textContent = user.displayName;
+                document.getElementById('userPhoto').src = user.photoURL || 'https://via.placeholder.com/40';
+            } else {
+                signInBtn.classList.remove('hidden');
+                userInfo.classList.add('hidden');
+            }
+        });
+
+        function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithPopup(provider).catch((error) => {
+                alert('فشل تسجيل الدخول: ' + error.message);
+            });
+        }
+
+        function signOut() {
+            firebase.auth().signOut();
+        }
+
+        function sendMessage(event) {
+            event.preventDefault();
+            const name = document.getElementById('contactName').value;
+            const email = document.getElementById('contactEmail').value;
+            const message = document.getElementById('contactMessage').value;
+            const statusDiv = document.getElementById('contactMessageStatus');
+
+            statusDiv.classList.remove('hidden', 'text-green-600', 'text-red-600');
+            statusDiv.classList.add('text-blue-600');
+            statusDiv.textContent = 'جاري إرسال رسالتك...';
+
+            setTimeout(() => {
+                statusDiv.classList.remove('text-blue-600');
+                statusDiv.classList.add('text-green-600');
+                statusDiv.textContent = `شكراً لك يا ${name}! تم استلام رسالتك بنجاح وسنتواصل معك قريباً على ${email}`;
+
+                document.getElementById('contactName').value = '';
+                document.getElementById('contactEmail').value = '';
+                document.getElementById('contactMessage').value = '';
+
+                setTimeout(() => {
+                    statusDiv.classList.add('hidden');
+                }, 5000);
+            }, 2000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+        });
+    </script>
+</body>
+</html>
