@@ -28,16 +28,16 @@
   
   "screenshots": [
     {
-      "src": "/screenshots/home-desktop.jpg",
+      "src": "/screenshots/home-desktop.png",
       "sizes": "1920x1080",
-      "type": "image/jpg",
+      "type": "image/png",
       "form_factor": "wide",
       "label": "الصفحة الرئيسية"
     },
     {
-      "src": "/screenshots/home-mobile.jpg",
+      "src": "/screenshots/home-mobile.png",
       "sizes": "640x1136",
-      "type": "image/jpg",
+      "type": "image/png",
       "form_factor": "narrow",
       "label": "الرئيسية - موبايل"
     }

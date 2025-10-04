@@ -2,9 +2,6 @@
 <html lang="ar" dir="rtl">
 
 <head>
-    <!-- إلى هذا -->
-<a href="./index.html">الرئيسية</a>
-<a href="./weather.html">الطقس</a>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4A7C59">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -73,14 +70,19 @@
                         <span class="text-2xl font-bold" style="color: var(--color-green);">SaFe Safari</span>
                     </a>
                     <div class="hidden md:flex gap-6">
-                        <a href="index.html" class="font-semibold transition hover:text-green-600"
-                            style="color: var(--color-dark-gray);">الرئيسية</a>
-                        <a href="weather.html" class="font-semibold transition hover:text-green-600"
-                            style="color: var(--color-dark-gray);">توقعات الطقس</a>
-                        <a href="trips.html" class="font-semibold transition hover:text-green-600"
-                            style="color: var(--color-green);">الرحلات</a>
-                        <a href="contact.html" class="font-semibold transition hover:text-green-600"
-                            style="color: var(--color-dark-gray);">اتصل بنا</a>
+                        <a href="#home" class="font-semibold transition hover:text-green-600" data-ar="الرئيسية"
+                            data-en="Home">الرئيسية</a>
+
+                        <a href="#nasa-dashboard" class="font-semibold transition hover:text-green-600"
+                            data-ar="توقعات الطقس" data-en="Weather Forecast">توقعات الطقس</a>
+
+                        <a href="#trips" class="font-semibold transition hover:text-green-600" data-ar="الرحلات"
+                            data-en="Trips">الرحلات</a>
+
+                        <a href="#contact" class="font-semibold transition hover:text-green-600" data-ar="اتصل بنا"
+                            data-en="Contact Us">اتصل بنا</a>
+
+                       
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
@@ -91,9 +93,10 @@
                         <button onclick="signOut()"
                             class="px-4 py-2 rounded-lg transition text-red-600 hover:bg-red-50">تسجيل خروج</button>
                     </div>
-                    <button id="signInBtn" onclick="signInWithGoogle()"
-                        class="px-6 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white font-bold rounded-lg hover:shadow-lg transition">تسجيل
-                        دخول</button>
+                    <button onclick="signOut()" data-ar="تسجيل خروج" data-en="Sign Out">تسجيل خروج</button>
+
+                        <button id="signInBtn" onclick="signInWithGoogle()" data-ar="تسجيل دخول" data-en="Sign In">تسجيل
+                            دخول</button>
                 </div>
             </div>
         </div>
@@ -103,7 +106,8 @@
     <section class="py-20 pt-32 min-h-screen">
         <div class="container mx-auto px-6">
             <div class="text-center mb-12">
-                <h2 class="text-4xl md:text-5xl font-black mb-4" style="color: var(--color-dark-gray);">الرحلات المميزة</h2>
+                <h2 class="text-4xl md:text-5xl font-black mb-4" style="color: var(--color-dark-gray);">الرحلات المميزة
+                </h2>
                 <p class="text-xl" style="color: var(--color-dark-gray); opacity: 0.7;">اختر رحلتك المثالية</p>
             </div>
             <div class="flex gap-3 overflow-x-auto pb-4 mb-8 justify-center">
@@ -215,7 +219,7 @@
                 includes: ['🚐 نقل خاص', '🏕️ إقامة بيئية', '🐋 زيارة وادي الحيتان', '🍽️ طعام محلي', '🎫 تذاكر دخول']
             },
             {
-                id: 4, category: 'بحرية', title: 'غوص في شرم الشيخ',  company: 'البحر الأحمر للسفر', rating: 5.0,
+                id: 4, category: 'بحرية', title: 'غوص في شرم الشيخ', company: 'البحر الأحمر للسفر', rating: 5.0,
                 image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=500&q=80',
                 description: 'دورة غوص احترافية PADI مع استكشاف أجمل الشعاب المرجانية',
                 duration: '6 أيام / 5 ليالي', location: 'شرم الشيخ',
@@ -229,7 +233,7 @@
                 includes: ['🛳️ كروز 5 نجوم', '🍽️ مطعم فاخر', '🎭 عروض مسائية', '🏛️ جولات أثرية', '💆 سبا ومساج']
             },
             {
-                id: 6, category: 'بحرية', title: 'يخت في دهب',company: 'البحر الأحمر للسفر', rating: 4.7,
+                id: 6, category: 'بحرية', title: 'يخت في دهب', company: 'البحر الأحمر للسفر', rating: 4.7,
                 image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=500&q=80',
                 description: 'رحلة يخت خاص مع سنوركلينج في أجمل البقع',
                 duration: '4 أيام / 3 ليالي', location: 'دهب',
@@ -299,7 +303,6 @@
                     <div class="p-6">
                         <h3 class="text-2xl font-bold mb-2" style="color: var(--color-dark-gray);">${trip.title}</h3>
                         <p class="text-sm font-semibold mb-3" style="color: var(--color-green);">${trip.company}</p>
-                        <div class="flex items-center justify-between">
                             <div class="flex items-center gap-1 text-yellow-500 font-bold">
                                 ${trip.rating} <span class="text-xl">★</span>
                             </div>
@@ -335,6 +338,8 @@
                         <div class="grid md:grid-cols-2 gap-3">
                             ${trip.includes.map(item => `<div class="flex items-center gap-2"><span class="text-green-500">✓</span><span>${item}</span></div>`).join('')}
                         </div>
+                    </div>
+                    <div class="flex justify-between items-center border-t pt-6">
                     </div>
                 </div>
             `;
