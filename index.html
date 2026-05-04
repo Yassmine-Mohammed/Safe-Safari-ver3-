@@ -346,7 +346,8 @@
             text-align: center;
             z-index: 2;
             margin: 0 auto;
-            width: 300%;
+            max-width: 1200px;
+            width: 100%;
             align-items: center;
         }
 
@@ -367,7 +368,6 @@
 
         .hero-title {
             font-family: 'Playfair Display', serif;
-            font-size: 120px;
             font-weight: 900;
             line-height: 1.1;
             margin: 30px;
@@ -377,6 +377,7 @@
             color: var(--gold-light);
             display: block;
             text-shadow: #0d0a05 0px 0px 8px, rgba(212, 160, 23, 0.5) 0px 0px 12px;
+            font-size: clamp(8rem, 9vw, 6rem);
         }
 
         .hero-sub {
@@ -1698,7 +1699,7 @@
         }
 
         #resetSurveyBtn {
- position: fixed;
+            position: fixed;
             top: 8.5rem;
             left: 1rem;
             z-index: 90;
@@ -1719,7 +1720,7 @@
             margin: 5px;
         }
 
-         #resetSurveyBtn:hover {
+        #resetSurveyBtn:hover {
             background: rgba(212, 160, 23, 0.12);
         }
 
@@ -1826,7 +1827,8 @@
 
     <!-- ── RESET SURVEY ── -->
     <div id="resetSurveyBtn">
-        <button onclick="resetSurvey()"></button><span data-ar="إعادة الاستبيان" data-en="Retake Survey">إعادة الاستبيان</span></button>
+        <button onclick="resetSurvey()"></button><span data-ar="إعادة الاستبيان" data-en="Retake Survey">إعادة
+            الاستبيان</span></button>
     </div>
 
     <!-- ── SURVEY MODAL ── -->
@@ -1997,9 +1999,7 @@
     <!-- ── HERO ── -->
     <section id="home">
         <video autoplay muted loop playsinline class="hero-video" poster="images/douplex/rooms_4173-kopya_7_11zon.webp">
-            <source
-                src="videos\videoplayback.mp4"
-                type="video/mp4">
+            <source src="videos\videoplayback.mp4" type="video/mp4">
         </video>
         <div class="hero-overlay"></div>
 
@@ -2279,15 +2279,16 @@
             </div>
             <div class="footer-bottom">© <span id="currentYear"></span> SaFe Safari.
                 <span data-ar="جميع الحقوق محفوظة." data-en="All rights reserved.">جميع الحقوق محفوظة.</span><br>
-                <span data-ar="صنع بكل حب من بشمهندسة ياسمين محمد"data-en="Made with love y Yassmine Mohammed">تصميم ياسمين محمد</span>
-                </div>
+                <span data-ar="صنع بكل حب من بشمهندسة ياسمين محمد" data-en="Made with love y Yassmine Mohammed">تصميم
+                    ياسمين محمد</span>
+            </div>
 
         </div>
     </footer>
 
     <button id="installBtn" onclick="promptInstall()">📱 <span data-ar="ثبت التطبيق" data-en="Install App">ثبت
             التطبيق</span></button>
-</script>
+    </script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
 
@@ -2316,93 +2317,94 @@
 
         });
     </script>
-    
-<button id="installBtn" onclick="promptInstall()">📱 <span data-ar="ثبت التطبيق" data-en="Install App">ثبت التطبيق</span></button>
- 
-<script>
-// ── FIREBASE ──
-const firebaseConfig = {
-  apiKey: "AIzaSyAVzQXcCR742QhzQ74jlE6c7SWmcG0vF7I",
-  authDomain: "safe-safari-44beb.firebaseapp.com",
-  projectId: "safe-safari-44beb",
-  storageBucket: "safe-safari-44beb.appspot.com",
-  messagingSenderId: "1026020215603",
-  appId: "1:1026020215603:web:52e97cdb254ede492ccc46"
-};
-firebase.initializeApp(firebaseConfig);
-let currentUser = null;
- 
-firebase.auth().onAuthStateChanged(user => {
-  currentUser = user;
-  const ui = document.getElementById('userInfo');
-  const sb = document.getElementById('signInBtn');
-  if (user) {
-    sb.style.display = 'none';
-    ui.style.display = 'flex';
-    document.getElementById('userName').textContent = user.displayName;
-    document.getElementById('userPhoto').src = user.photoURL || '';
-  } else {
-    sb.style.display = '';
-    ui.style.display = 'none';
-  }
-  displayRecommendedTrip();
-});
- 
-function signInWithGoogle() {
-  const p = new firebase.auth.GoogleAuthProvider();
-  p.setCustomParameters({ prompt: 'select_account' });
-  firebase.auth().signInWithPopup(p).catch(e => alert('فشل تسجيل الدخول: ' + e.message));
-}
-function signOut() { firebase.auth().signOut(); }
- 
-// ── NAVBAR SCROLL ──
-window.addEventListener('scroll', () => {
-  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
-});
- 
-// ── MOBILE MENU ──
-function toggleMobileMenu() {
-  document.getElementById('mobileMenu').classList.toggle('open');
-}
- 
-// ── LANGUAGE ──
-let currentLang = localStorage.getItem('lang') || 'ar';
-function toggleLanguage() {
-  currentLang = currentLang === 'ar' ? 'en' : 'ar';
-  localStorage.setItem('lang', currentLang);
-  document.documentElement.lang = currentLang;
-  document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-  document.getElementById('langText').textContent = currentLang === 'ar' ? 'English' : 'العربية';
-  document.querySelectorAll('[data-ar][data-en]').forEach(el => { el.textContent = el.getAttribute('data-' + currentLang); });
-  document.querySelectorAll('[data-placeholder-ar]').forEach(el => { el.placeholder = el.getAttribute('data-placeholder-' + currentLang); });
-  const chatMsg = document.querySelector('.msg.ai');
-  if (chatMsg) chatMsg.textContent = chatMsg.getAttribute('data-' + currentLang);
-}
-function applyLang() {
-  document.documentElement.lang = currentLang;
-  document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-  document.getElementById('langText').textContent = currentLang === 'ar' ? 'English' : 'العربية';
-  document.querySelectorAll('[data-ar][data-en]').forEach(el => { el.textContent = el.getAttribute('data-' + currentLang); });
-  document.querySelectorAll('[data-placeholder-ar]').forEach(el => { el.placeholder = el.getAttribute('data-placeholder-' + currentLang); });
-}
- 
-// ── TRIPS DATA ──
-const tripsData = [
-  { id:1, category:'صحراوية', title:'سفاري واحة سيوة', company:'النيل للسياحة', rating:4.9, image:'https://images.unsplash.com/photo-1698582368985-05143e5a226e?q=80&w=800', description:'رحلة مذهلة لاستكشاف واحة سيوة الساحرة مع زيارة معبد الوحي وجبل الموتى والعيون الطبيعية', duration:'5 أيام / 4 ليالي', startDate:'2025-11-15', endDate:'2025-11-19', location:'سيوة', lat:29.2028, lng:25.5194, includes:['🚌 نقل مكيف','🏨 إقامة 4 نجوم','🥘 وجبات كاملة','👤 مرشد سياحي','🔒 تأمين شامل'] },
-  { id:2, category:'صحراوية', title:'الواحات البحرية', company:'النيل للسياحة', rating:4.8, image:'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=600&q=80', description:'تخييم في الصحراء البيضاء والسوداء مع مغامرات سفاري لا تُنسى', duration:'4 أيام / 3 ليالي', startDate:'2025-11-10', endDate:'2025-11-13', location:'الواحات البحرية', lat:28.35, lng:28.87, includes:['🚙 سيارات دفع رباعي','⛺ تخييم فاخر','🔥 شواء بدوي','⭐ رصد نجوم','📸 جلسة تصوير'] },
-  { id:3, category:'صحراوية', title:'مغامرة الفيوم', company:'النيل للسياحة', rating:4.2, image:'https://images.unsplash.com/photo-1599915240347-19e9040bc9aa?q=80&w=800', description:'استكشف وادي الحيتان ومحمية وادي الريان في قلب الصحراء المصرية', duration:'3 أيام / 2 ليالي', startDate:'2025-11-05', endDate:'2025-11-07', location:'الفيوم', lat:29.31, lng:30.84, includes:['🚐 نقل خاص','🏕️ إقامة بيئية','🐋 زيارة وادي الحيتان','🍽️ طعام محلي','🎫 تذاكر دخول'] },
-  { id:4, category:'بحرية', title:'غوص في شرم الشيخ', company:'البحر الأحمر للسفر', rating:5.0, image:'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600&q=80', description:'دورة غوص احترافية PADI مع استكشاف أجمل الشعاب المرجانية في العالم', duration:'6 أيام / 5 ليالي', startDate:'2025-12-01', endDate:'2025-12-06', location:'شرم الشيخ', lat:27.92, lng:34.33, includes:['✈️ طيران داخلي','🏨 منتجع 5 نجوم','🤿 دورة غوص PADI','🚤 رحلات يومية','📜 شهادة معتمدة'] },
-  { id:5, category:'بحرية', title:'كروز نيلي فاخر', company:'البحر الأحمر للسفر', rating:4.9, image:'https://images.unsplash.com/photo-1568575621216-ca74d9a8c687?q=80&w=800', description:'رحلة نيلية فاخرة من الأقصر لأسوان مع زيارة المعابد الفرعونية العريقة', duration:'7 أيام / 6 ليالي', startDate:'2025-12-10', endDate:'2025-12-16', location:'الأقصر-أسوان', lat:25.69, lng:32.64, includes:['🛳️ كروز 5 نجوم','🍽️ مطعم فاخر','🎭 عروض مسائية','🏛️ جولات أثرية','💆 سبا ومساج'] },
-  { id:6, category:'بحرية', title:'يخت في دهب', company:'البحر الأحمر للسفر', rating:4.7, image:'https://images.unsplash.com/photo-1660151173472-3819f3255b5c?q=80&w=800', description:'رحلة يخت خاص مع سنوركلينج في أجمل البقع البحرية في دهب', duration:'4 أيام / 3 ليالي', startDate:'2025-11-20', endDate:'2025-11-23', location:'دهب', lat:28.51, lng:34.51, includes:['⛵ يخت خاص','🏊 سنوركلينج','🎣 صيد سمك','🌅 رحلات غروب','🍹 مشروبات وسناكس'] },
-  { id:7, category:'أثرية', title:'الأقصر وأسوان الأثرية', company:'مصر القديمة', rating:4.8, image:'https://images.unsplash.com/photo-1572252009286-268acec5ca0a?w=600&q=80', description:'جولة شاملة في أهم المعابد والمقابر الفرعونية على ضفتي النيل', duration:'6 أيام / 5 ليالي', startDate:'2025-11-25', endDate:'2025-11-30', location:'الأقصر-أسوان', lat:25.69, lng:32.64, includes:['✈️ طيران','🏨 فنادق تاريخية','🏛️ جميع المعابد','🎫 تذاكر VIP','📚 مرشد أثري متخصص'] },
-  { id:8, category:'أثرية', title:'أهرامات الجيزة', company:'مصر القديمة', rating:4.9, image:'https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=600&q=80', description:'استكشف عجائب الدنيا السبع والعاصمة المصرية القديمة', duration:'3 أيام / 2 ليالي', startDate:'2025-11-08', endDate:'2025-11-10', location:'الجيزة-القاهرة', lat:29.98, lng:31.13, includes:['🚐 نقل VIP','🏨 فندق بإطلالة','🐪 جولة جمال','🍽️ عشاء فرعوني','🎥 عرض صوت وضوء'] },
-  { id:9, category:'أثرية', title:'جولة في الإسكندرية', company:'مصر القديمة', rating:4.6, image:'https://images.unsplash.com/photo-1697546889969-27f7b5be8664?q=80&w=800', description:'رحلة لمدينة الإسكندر الأكبر وعروس البحر المتوسط الخالدة', duration:'4 أيام / 3 ليالي', startDate:'2025-11-12', endDate:'2025-11-15', location:'الإسكندرية', lat:31.20, lng:29.92, includes:['🚌 نقل مريح','🏨 فندق على البحر','📚 مكتبة الإسكندرية','🏰 قلعة قايتباي','🦐 سي فود طازج'] }
-];
- 
-// ── TRIPS DISPLAY ──
-function displayTrips(trips) {
-  const c = document.getElementById('tripsContainer');
-  c.innerHTML = trips.map(t => `
+
+    <button id="installBtn" onclick="promptInstall()">📱 <span data-ar="ثبت التطبيق" data-en="Install App">ثبت
+            التطبيق</span></button>
+
+    <script>
+        // ── FIREBASE ──
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVzQXcCR742QhzQ74jlE6c7SWmcG0vF7I",
+            authDomain: "safe-safari-44beb.firebaseapp.com",
+            projectId: "safe-safari-44beb",
+            storageBucket: "safe-safari-44beb.appspot.com",
+            messagingSenderId: "1026020215603",
+            appId: "1:1026020215603:web:52e97cdb254ede492ccc46"
+        };
+        firebase.initializeApp(firebaseConfig);
+        let currentUser = null;
+
+        firebase.auth().onAuthStateChanged(user => {
+            currentUser = user;
+            const ui = document.getElementById('userInfo');
+            const sb = document.getElementById('signInBtn');
+            if (user) {
+                sb.style.display = 'none';
+                ui.style.display = 'flex';
+                document.getElementById('userName').textContent = user.displayName;
+                document.getElementById('userPhoto').src = user.photoURL || '';
+            } else {
+                sb.style.display = '';
+                ui.style.display = 'none';
+            }
+            displayRecommendedTrip();
+        });
+
+        function signInWithGoogle() {
+            const p = new firebase.auth.GoogleAuthProvider();
+            p.setCustomParameters({ prompt: 'select_account' });
+            firebase.auth().signInWithPopup(p).catch(e => alert('فشل تسجيل الدخول: ' + e.message));
+        }
+        function signOut() { firebase.auth().signOut(); }
+
+        // ── NAVBAR SCROLL ──
+        window.addEventListener('scroll', () => {
+            document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+        });
+
+        // ── MOBILE MENU ──
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('open');
+        }
+
+        // ── LANGUAGE ──
+        let currentLang = localStorage.getItem('lang') || 'ar';
+        function toggleLanguage() {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            localStorage.setItem('lang', currentLang);
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('langText').textContent = currentLang === 'ar' ? 'English' : 'العربية';
+            document.querySelectorAll('[data-ar][data-en]').forEach(el => { el.textContent = el.getAttribute('data-' + currentLang); });
+            document.querySelectorAll('[data-placeholder-ar]').forEach(el => { el.placeholder = el.getAttribute('data-placeholder-' + currentLang); });
+            const chatMsg = document.querySelector('.msg.ai');
+            if (chatMsg) chatMsg.textContent = chatMsg.getAttribute('data-' + currentLang);
+        }
+        function applyLang() {
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('langText').textContent = currentLang === 'ar' ? 'English' : 'العربية';
+            document.querySelectorAll('[data-ar][data-en]').forEach(el => { el.textContent = el.getAttribute('data-' + currentLang); });
+            document.querySelectorAll('[data-placeholder-ar]').forEach(el => { el.placeholder = el.getAttribute('data-placeholder-' + currentLang); });
+        }
+
+        // ── TRIPS DATA ──
+        const tripsData = [
+            { id: 1, category: 'صحراوية', title: 'سفاري واحة سيوة', company: 'النيل للسياحة', rating: 4.9, image: 'https://images.unsplash.com/photo-1698582368985-05143e5a226e?q=80&w=800', description: 'رحلة مذهلة لاستكشاف واحة سيوة الساحرة مع زيارة معبد الوحي وجبل الموتى والعيون الطبيعية', duration: '5 أيام / 4 ليالي', startDate: '2025-11-15', endDate: '2025-11-19', location: 'سيوة', lat: 29.2028, lng: 25.5194, includes: ['🚌 نقل مكيف', '🏨 إقامة 4 نجوم', '🥘 وجبات كاملة', '👤 مرشد سياحي', '🔒 تأمين شامل'] },
+            { id: 2, category: 'صحراوية', title: 'الواحات البحرية', company: 'النيل للسياحة', rating: 4.8, image: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=600&q=80', description: 'تخييم في الصحراء البيضاء والسوداء مع مغامرات سفاري لا تُنسى', duration: '4 أيام / 3 ليالي', startDate: '2025-11-10', endDate: '2025-11-13', location: 'الواحات البحرية', lat: 28.35, lng: 28.87, includes: ['🚙 سيارات دفع رباعي', '⛺ تخييم فاخر', '🔥 شواء بدوي', '⭐ رصد نجوم', '📸 جلسة تصوير'] },
+            { id: 3, category: 'صحراوية', title: 'مغامرة الفيوم', company: 'النيل للسياحة', rating: 4.2, image: 'https://images.unsplash.com/photo-1599915240347-19e9040bc9aa?q=80&w=800', description: 'استكشف وادي الحيتان ومحمية وادي الريان في قلب الصحراء المصرية', duration: '3 أيام / 2 ليالي', startDate: '2025-11-05', endDate: '2025-11-07', location: 'الفيوم', lat: 29.31, lng: 30.84, includes: ['🚐 نقل خاص', '🏕️ إقامة بيئية', '🐋 زيارة وادي الحيتان', '🍽️ طعام محلي', '🎫 تذاكر دخول'] },
+            { id: 4, category: 'بحرية', title: 'غوص في شرم الشيخ', company: 'البحر الأحمر للسفر', rating: 5.0, image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600&q=80', description: 'دورة غوص احترافية PADI مع استكشاف أجمل الشعاب المرجانية في العالم', duration: '6 أيام / 5 ليالي', startDate: '2025-12-01', endDate: '2025-12-06', location: 'شرم الشيخ', lat: 27.92, lng: 34.33, includes: ['✈️ طيران داخلي', '🏨 منتجع 5 نجوم', '🤿 دورة غوص PADI', '🚤 رحلات يومية', '📜 شهادة معتمدة'] },
+            { id: 5, category: 'بحرية', title: 'كروز نيلي فاخر', company: 'البحر الأحمر للسفر', rating: 4.9, image: 'https://images.unsplash.com/photo-1568575621216-ca74d9a8c687?q=80&w=800', description: 'رحلة نيلية فاخرة من الأقصر لأسوان مع زيارة المعابد الفرعونية العريقة', duration: '7 أيام / 6 ليالي', startDate: '2025-12-10', endDate: '2025-12-16', location: 'الأقصر-أسوان', lat: 25.69, lng: 32.64, includes: ['🛳️ كروز 5 نجوم', '🍽️ مطعم فاخر', '🎭 عروض مسائية', '🏛️ جولات أثرية', '💆 سبا ومساج'] },
+            { id: 6, category: 'بحرية', title: 'يخت في دهب', company: 'البحر الأحمر للسفر', rating: 4.7, image: 'https://images.unsplash.com/photo-1660151173472-3819f3255b5c?q=80&w=800', description: 'رحلة يخت خاص مع سنوركلينج في أجمل البقع البحرية في دهب', duration: '4 أيام / 3 ليالي', startDate: '2025-11-20', endDate: '2025-11-23', location: 'دهب', lat: 28.51, lng: 34.51, includes: ['⛵ يخت خاص', '🏊 سنوركلينج', '🎣 صيد سمك', '🌅 رحلات غروب', '🍹 مشروبات وسناكس'] },
+            { id: 7, category: 'أثرية', title: 'الأقصر وأسوان الأثرية', company: 'مصر القديمة', rating: 4.8, image: 'https://images.unsplash.com/photo-1572252009286-268acec5ca0a?w=600&q=80', description: 'جولة شاملة في أهم المعابد والمقابر الفرعونية على ضفتي النيل', duration: '6 أيام / 5 ليالي', startDate: '2025-11-25', endDate: '2025-11-30', location: 'الأقصر-أسوان', lat: 25.69, lng: 32.64, includes: ['✈️ طيران', '🏨 فنادق تاريخية', '🏛️ جميع المعابد', '🎫 تذاكر VIP', '📚 مرشد أثري متخصص'] },
+            { id: 8, category: 'أثرية', title: 'أهرامات الجيزة', company: 'مصر القديمة', rating: 4.9, image: 'https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=600&q=80', description: 'استكشف عجائب الدنيا السبع والعاصمة المصرية القديمة', duration: '3 أيام / 2 ليالي', startDate: '2025-11-08', endDate: '2025-11-10', location: 'الجيزة-القاهرة', lat: 29.98, lng: 31.13, includes: ['🚐 نقل VIP', '🏨 فندق بإطلالة', '🐪 جولة جمال', '🍽️ عشاء فرعوني', '🎥 عرض صوت وضوء'] },
+            { id: 9, category: 'أثرية', title: 'جولة في الإسكندرية', company: 'مصر القديمة', rating: 4.6, image: 'https://images.unsplash.com/photo-1697546889969-27f7b5be8664?q=80&w=800', description: 'رحلة لمدينة الإسكندر الأكبر وعروس البحر المتوسط الخالدة', duration: '4 أيام / 3 ليالي', startDate: '2025-11-12', endDate: '2025-11-15', location: 'الإسكندرية', lat: 31.20, lng: 29.92, includes: ['🚌 نقل مريح', '🏨 فندق على البحر', '📚 مكتبة الإسكندرية', '🏰 قلعة قايتباي', '🦐 سي فود طازج'] }
+        ];
+
+        // ── TRIPS DISPLAY ──
+        function displayTrips(trips) {
+            const c = document.getElementById('tripsContainer');
+            c.innerHTML = trips.map(t => `
     <div class="trip-card" onclick="openModal(${t.id})">
       <div class="trip-img">
         <img src="${t.image}" alt="${t.title}" loading="lazy">
@@ -2421,20 +2423,20 @@ function displayTrips(trips) {
       </div>
     </div>
   `).join('');
-}
- 
-function filterTrips(cat, btn) {
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  const filtered = cat === 'الكل' ? tripsData : tripsData.filter(t => t.category === cat);
-  displayTrips(filtered);
-}
- 
-// ── MODAL ──
-function openModal(id) {
-  if (!currentUser) { alert('الرجاء تسجيل الدخول أولاً لعرض تفاصيل الرحلة'); return; }
-  const t = tripsData.find(x => x.id === id); if (!t) return;
-  document.getElementById('modalContent').innerHTML = `
+        }
+
+        function filterTrips(cat, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            const filtered = cat === 'الكل' ? tripsData : tripsData.filter(t => t.category === cat);
+            displayTrips(filtered);
+        }
+
+        // ── MODAL ──
+        function openModal(id) {
+            if (!currentUser) { alert('الرجاء تسجيل الدخول أولاً لعرض تفاصيل الرحلة'); return; }
+            const t = tripsData.find(x => x.id === id); if (!t) return;
+            document.getElementById('modalContent').innerHTML = `
     <div class="modal-hero">
       <img src="${t.image}" alt="${t.title}">
       <div class="modal-hero-title">${t.title}</div>
@@ -2459,44 +2461,44 @@ function openModal(id) {
       <button class="btn-modal-weather" onclick="showWeatherForTrip(${t.id})">🌤️ عرض توقعات الطقس للرحلة</button>
     </div>
   `;
-  const modal = document.getElementById('tripModal');
-  modal.classList.add('open');
-  modal.style.display = 'flex';
-}
-function closeModal() {
-  const m = document.getElementById('tripModal');
-  m.classList.remove('open');
-  m.style.display = 'none';
-}
- 
-function showWeatherForTrip(id) {
-  const t = tripsData.find(x => x.id === id); if(!t) return;
-  const days = Math.ceil((new Date(t.endDate)-new Date(t.startDate))/(864e5))+1;
-  const icons = ['☀️','⛅','🌤️','☁️'];
-  const conds = ['مشمس','غائم جزئياً','صافي','غائم'];
-  const html = `<div style="margin-top:1.5rem;background:rgba(255,255,255,0.03);border:1px solid rgba(74,124,89,0.25);border-radius:1rem;padding:1.5rem">
+            const modal = document.getElementById('tripModal');
+            modal.classList.add('open');
+            modal.style.display = 'flex';
+        }
+        function closeModal() {
+            const m = document.getElementById('tripModal');
+            m.classList.remove('open');
+            m.style.display = 'none';
+        }
+
+        function showWeatherForTrip(id) {
+            const t = tripsData.find(x => x.id === id); if (!t) return;
+            const days = Math.ceil((new Date(t.endDate) - new Date(t.startDate)) / (864e5)) + 1;
+            const icons = ['☀️', '⛅', '🌤️', '☁️'];
+            const conds = ['مشمس', 'غائم جزئياً', 'صافي', 'غائم'];
+            const html = `<div style="margin-top:1.5rem;background:rgba(255,255,255,0.03);border:1px solid rgba(74,124,89,0.25);border-radius:1rem;padding:1.5rem">
     <h4 style="color:var(--sage-light);font-weight:700;margin-bottom:1rem">🌤️ توقعات الطقس: ${t.startDate} → ${t.endDate}</h4>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:0.75rem">
-      ${Array.from({length:days},(_,i)=>{const r=Math.floor(Math.random()*4);return`<div style="background:rgba(255,255,255,0.04);border-radius:0.75rem;padding:0.75rem;text-align:center"><div style="font-size:1.8rem;margin-bottom:0.3rem">${icons[r]}</div><div style="font-size:0.75rem;color:rgba(232,213,176,0.5)">يوم ${i+1}</div><div style="font-size:1.2rem;font-weight:700;color:var(--gold)">${Math.floor(Math.random()*15)+20}°C</div><div style="font-size:0.7rem;color:rgba(232,213,176,0.4)">${conds[r]}</div></div>`}).join('')}
+      ${Array.from({ length: days }, (_, i) => { const r = Math.floor(Math.random() * 4); return `<div style="background:rgba(255,255,255,0.04);border-radius:0.75rem;padding:0.75rem;text-align:center"><div style="font-size:1.8rem;margin-bottom:0.3rem">${icons[r]}</div><div style="font-size:0.75rem;color:rgba(232,213,176,0.5)">يوم ${i + 1}</div><div style="font-size:1.2rem;font-weight:700;color:var(--gold)">${Math.floor(Math.random() * 15) + 20}°C</div><div style="font-size:0.7rem;color:rgba(232,213,176,0.4)">${conds[r]}</div></div>` }).join('')}
     </div>
     <div style="margin-top:1rem;padding:0.75rem;background:rgba(74,124,89,0.1);border-radius:0.5rem;color:var(--sage-light);font-size:0.85rem">✅ الطقس مناسب تماماً للرحلة!</div>
   </div>`;
-  document.getElementById('modalContent').insertAdjacentHTML('beforeend', html);
-}
- 
-// ── RECOMMENDED ──
-function getRecommendedTrip() {
-  const m = new Date().getMonth()+1;
-  const map = {10:{id:7,reason:'الطقس معتدل والحرارة مثالية (25-30°C) — أفضل وقت لزيارة المعابد الفرعونية',weather:{temp:28,condition:'مشمس ومعتدل',humidity:45,wind:3.2}},11:{id:1,reason:'أفضل وقت للرحلات الصحراوية — الجو بارد ليلاً ومعتدل نهاراً',weather:{temp:22,condition:'مثالي للصحراء',humidity:35,wind:2.8}},12:{id:4,reason:'موسم الغوص الذهبي — المياه صافية والحرارة مثالية',weather:{temp:23,condition:'مثالي للغوص',humidity:55,wind:3.5}},1:{id:5,reason:'رحلة نيلية في الطقس البارد المنعش',weather:{temp:18,condition:'بارد ومنعش',humidity:50,wind:2.5}},2:{id:8,reason:'زيارة الأهرامات في طقس رائع بعيداً عن الزحام',weather:{temp:21,condition:'معتدل وجاف',humidity:40,wind:3.0}},3:{id:9,reason:'الربيع في الإسكندرية — طقس رائع ونسيم البحر',weather:{temp:22,condition:'ربيعي منعش',humidity:60,wind:4.0}},4:{id:2,reason:'الواحات البحرية في ذروة جمالها — حرارة معتدلة',weather:{temp:27,condition:'دافئ وجاف',humidity:30,wind:3.2}},5:{id:6,reason:'دهب قبل الصيف الحار — مثالي للسنوركلينج',weather:{temp:29,condition:'دافئ ومشمس',humidity:45,wind:3.8}},6:{id:6,reason:'البحر الأحمر المنعش في الصيف',weather:{temp:32,condition:'حار ومشمس',humidity:50,wind:4.2}},7:{id:4,reason:'الغوص في شرم — الماء دافئ والرؤية ممتازة',weather:{temp:35,condition:'حار جداً',humidity:55,wind:3.5}},8:{id:9,reason:'الإسكندرية الساحلية — أبرد من القاهرة',weather:{temp:30,condition:'حار مع نسيم',humidity:65,wind:4.5}},9:{id:3,reason:'الفيوم بعد الصيف — طقس معتدل للتخييم',weather:{temp:29,condition:'معتدل ومشمس',humidity:40,wind:3.0}}};
-  const rec = map[m]||map[10];
-  const trip = tripsData.find(t=>t.id===rec.id);
-  return {trip, reason:rec.reason, weather:rec.weather};
-}
- 
-function displayRecommendedTrip() {
-  const c = document.getElementById('recommendedTripContainer'); if(!c) return;
-  const {trip, reason, weather} = getRecommendedTrip(); if(!trip) return;
-  c.innerHTML = `
+            document.getElementById('modalContent').insertAdjacentHTML('beforeend', html);
+        }
+
+        // ── RECOMMENDED ──
+        function getRecommendedTrip() {
+            const m = new Date().getMonth() + 1;
+            const map = { 10: { id: 7, reason: 'الطقس معتدل والحرارة مثالية (25-30°C) — أفضل وقت لزيارة المعابد الفرعونية', weather: { temp: 28, condition: 'مشمس ومعتدل', humidity: 45, wind: 3.2 } }, 11: { id: 1, reason: 'أفضل وقت للرحلات الصحراوية — الجو بارد ليلاً ومعتدل نهاراً', weather: { temp: 22, condition: 'مثالي للصحراء', humidity: 35, wind: 2.8 } }, 12: { id: 4, reason: 'موسم الغوص الذهبي — المياه صافية والحرارة مثالية', weather: { temp: 23, condition: 'مثالي للغوص', humidity: 55, wind: 3.5 } }, 1: { id: 5, reason: 'رحلة نيلية في الطقس البارد المنعش', weather: { temp: 18, condition: 'بارد ومنعش', humidity: 50, wind: 2.5 } }, 2: { id: 8, reason: 'زيارة الأهرامات في طقس رائع بعيداً عن الزحام', weather: { temp: 21, condition: 'معتدل وجاف', humidity: 40, wind: 3.0 } }, 3: { id: 9, reason: 'الربيع في الإسكندرية — طقس رائع ونسيم البحر', weather: { temp: 22, condition: 'ربيعي منعش', humidity: 60, wind: 4.0 } }, 4: { id: 2, reason: 'الواحات البحرية في ذروة جمالها — حرارة معتدلة', weather: { temp: 27, condition: 'دافئ وجاف', humidity: 30, wind: 3.2 } }, 5: { id: 6, reason: 'دهب قبل الصيف الحار — مثالي للسنوركلينج', weather: { temp: 29, condition: 'دافئ ومشمس', humidity: 45, wind: 3.8 } }, 6: { id: 6, reason: 'البحر الأحمر المنعش في الصيف', weather: { temp: 32, condition: 'حار ومشمس', humidity: 50, wind: 4.2 } }, 7: { id: 4, reason: 'الغوص في شرم — الماء دافئ والرؤية ممتازة', weather: { temp: 35, condition: 'حار جداً', humidity: 55, wind: 3.5 } }, 8: { id: 9, reason: 'الإسكندرية الساحلية — أبرد من القاهرة', weather: { temp: 30, condition: 'حار مع نسيم', humidity: 65, wind: 4.5 } }, 9: { id: 3, reason: 'الفيوم بعد الصيف — طقس معتدل للتخييم', weather: { temp: 29, condition: 'معتدل ومشمس', humidity: 40, wind: 3.0 } } };
+            const rec = map[m] || map[10];
+            const trip = tripsData.find(t => t.id === rec.id);
+            return { trip, reason: rec.reason, weather: rec.weather };
+        }
+
+        function displayRecommendedTrip() {
+            const c = document.getElementById('recommendedTripContainer'); if (!c) return;
+            const { trip, reason, weather } = getRecommendedTrip(); if (!trip) return;
+            c.innerHTML = `
     <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(212,160,23,0.15);border-radius:1.5rem;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;gap:0" class="fade-up visible">
       <div style="position:relative;min-height:400px">
         <img src="${trip.image}" alt="${trip.title}" style="width:100%;height:100%;object-fit:cover;display:block">
@@ -2524,57 +2526,57 @@ function displayRecommendedTrip() {
       </div>
     </div>
   `;
-}
- 
-// ── MAP ──
-let map=null, marker=null;
-function initMap() {
-  if (map) { map.remove(); map=null; }
-  const el = document.getElementById('map'); if(!el) return;
-  map = L.map('map').setView([26.82, 30.80], 6);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
-  setTimeout(()=>map&&map.invalidateSize(),200);
-  map.on('click',e=>{
-    if(marker) map.removeLayer(marker);
-    marker = L.marker(e.latlng).addTo(map);
-    document.getElementById('place').value = `${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`;
-  });
-}
- 
-// ── NASA ──
-async function loadNASAData() {
-  const place = document.getElementById('place').value.trim();
-  const date = document.getElementById('date').value;
-  if(!place||!date){alert('الرجاء إدخال الموقع والتاريخ');return;}
-  const rc = document.getElementById('resultsContainer');
-  const lo = document.getElementById('loadingOverlay');
-  rc.style.display='block'; lo.style.display='flex';
-  try {
-    let lat,lon;
-    const p = place.split(',').map(s=>s.trim());
-    if(p.length===2&&!isNaN(p[0])&&!isNaN(p[1])){ lat=+p[0]; lon=+p[1]; }
-    else {
-      const gr = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(place)}&format=json&limit=1`);
-      const gd = await gr.json();
-      if(!gd.length) throw new Error('لم يتم العثور على الموقع');
-      lat=+gd[0].lat; lon=+gd[0].lon;
-    }
-    const sd = new Date(date); const ed = new Date(date);
-    sd.setDate(sd.getDate()-7);
-    const s = sd.toISOString().split('T')[0].replace(/-/g,'');
-    const e = ed.toISOString().split('T')[0].replace(/-/g,'');
-    const url = `https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M,RH2M,WS2M,PRECTOTCORR&community=RE&longitude=${lon}&latitude=${lat}&start=${s}&end=${e}&format=JSON`;
-    const res = await fetch(url); const d = await res.json();
-    if(!d.properties?.parameter) throw new Error('فشل استرجاع البيانات من NASA');
-    const par = d.properties.parameter;
-    const dates = Object.keys(par.T2M).sort();
-    const latest = dates[dates.length-1];
-    const temp=par.T2M[latest], hum=par.RH2M[latest], wind=par.WS2M[latest], prec=par.PRECTOTCORR[latest];
-    let safety='آمن',sc='var(--sage)',si='✅';
-    if(temp>40||wind>10||prec>10){safety='حذر';sc='var(--gold)';si='⚠️';}
-    if(temp>45||wind>15||prec>20){safety='خطر';sc='var(--rust)';si='❌';}
-    lo.style.display='none';
-    document.getElementById('results').innerHTML = `
+        }
+
+        // ── MAP ──
+        let map = null, marker = null;
+        function initMap() {
+            if (map) { map.remove(); map = null; }
+            const el = document.getElementById('map'); if (!el) return;
+            map = L.map('map').setView([26.82, 30.80], 6);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(map);
+            setTimeout(() => map && map.invalidateSize(), 200);
+            map.on('click', e => {
+                if (marker) map.removeLayer(marker);
+                marker = L.marker(e.latlng).addTo(map);
+                document.getElementById('place').value = `${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`;
+            });
+        }
+
+        // ── NASA ──
+        async function loadNASAData() {
+            const place = document.getElementById('place').value.trim();
+            const date = document.getElementById('date').value;
+            if (!place || !date) { alert('الرجاء إدخال الموقع والتاريخ'); return; }
+            const rc = document.getElementById('resultsContainer');
+            const lo = document.getElementById('loadingOverlay');
+            rc.style.display = 'block'; lo.style.display = 'flex';
+            try {
+                let lat, lon;
+                const p = place.split(',').map(s => s.trim());
+                if (p.length === 2 && !isNaN(p[0]) && !isNaN(p[1])) { lat = +p[0]; lon = +p[1]; }
+                else {
+                    const gr = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(place)}&format=json&limit=1`);
+                    const gd = await gr.json();
+                    if (!gd.length) throw new Error('لم يتم العثور على الموقع');
+                    lat = +gd[0].lat; lon = +gd[0].lon;
+                }
+                const sd = new Date(date); const ed = new Date(date);
+                sd.setDate(sd.getDate() - 7);
+                const s = sd.toISOString().split('T')[0].replace(/-/g, '');
+                const e = ed.toISOString().split('T')[0].replace(/-/g, '');
+                const url = `https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M,RH2M,WS2M,PRECTOTCORR&community=RE&longitude=${lon}&latitude=${lat}&start=${s}&end=${e}&format=JSON`;
+                const res = await fetch(url); const d = await res.json();
+                if (!d.properties?.parameter) throw new Error('فشل استرجاع البيانات من NASA');
+                const par = d.properties.parameter;
+                const dates = Object.keys(par.T2M).sort();
+                const latest = dates[dates.length - 1];
+                const temp = par.T2M[latest], hum = par.RH2M[latest], wind = par.WS2M[latest], prec = par.PRECTOTCORR[latest];
+                let safety = 'آمن', sc = 'var(--sage)', si = '✅';
+                if (temp > 40 || wind > 10 || prec > 10) { safety = 'حذر'; sc = 'var(--gold)'; si = '⚠️'; }
+                if (temp > 45 || wind > 15 || prec > 20) { safety = 'خطر'; sc = 'var(--rust)'; si = '❌'; }
+                lo.style.display = 'none';
+                document.getElementById('results').innerHTML = `
       <div style="margin-bottom:1.5rem;padding:1rem 1.25rem;background:rgba(212,160,23,0.06);border:1px solid rgba(212,160,23,0.2);border-radius:0.75rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem">
         <div><div style="font-size:0.8rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:0.08em">مصدر البيانات</div><div style="font-size:1rem;color:var(--sand);margin-top:0.2rem">🛰️ NASA POWER Project</div></div>
         <div style="text-align:left"><div style="font-size:0.75rem;color:rgba(232,213,176,0.45)">الإحداثيات</div><div style="font-size:0.9rem;color:var(--sand)">${lat.toFixed(4)}, ${lon.toFixed(4)}</div></div>
@@ -2590,156 +2592,156 @@ async function loadNASAData() {
         <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:0.75rem;padding:1.25rem">
           <h4 style="font-size:0.85rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1rem">💡 نصائح السفر</h4>
           <ul style="list-style:none;display:flex;flex-direction:column;gap:0.6rem;font-size:0.88rem;color:rgba(232,213,176,0.65)">
-            ${temp>35?'<li>☀️ تجنب التعرض للشمس 12-3م</li><li>💧 اشرب 3-4 لتر يومياً</li>':''}
-            ${temp>25&&temp<=35?'<li>😊 الطقس مثالي للأنشطة الخارجية</li><li>📸 وقت رائع للتصوير</li>':''}
-            ${temp<=25?'<li>🧥 أحضر جاكيت خفيف للمساء</li><li>☕ استمتع بالطقس المنعش</li>':''}
-            ${wind>10?'<li>💨 رياح قوية — تجنب الأماكن المكشوفة</li>':''}
-            ${prec>5?'<li>☔ احتمال أمطار — خذ مظلة</li>':''}
+            ${temp > 35 ? '<li>☀️ تجنب التعرض للشمس 12-3م</li><li>💧 اشرب 3-4 لتر يومياً</li>' : ''}
+            ${temp > 25 && temp <= 35 ? '<li>😊 الطقس مثالي للأنشطة الخارجية</li><li>📸 وقت رائع للتصوير</li>' : ''}
+            ${temp <= 25 ? '<li>🧥 أحضر جاكيت خفيف للمساء</li><li>☕ استمتع بالطقس المنعش</li>' : ''}
+            ${wind > 10 ? '<li>💨 رياح قوية — تجنب الأماكن المكشوفة</li>' : ''}
+            ${prec > 5 ? '<li>☔ احتمال أمطار — خذ مظلة</li>' : ''}
             <li>✅ بيانات من أقمار NASA الصناعية</li>
           </ul>
         </div>
         <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:0.75rem;padding:1.25rem">
           <h4 style="font-size:0.85rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1rem">🎒 ما تحتاجه</h4>
           <ul style="list-style:none;display:flex;flex-direction:column;gap:0.6rem;font-size:0.88rem;color:rgba(232,213,176,0.65)">
-            ${temp>35?'<li>🧴 واقي شمس SPF 50+</li><li>🧢 قبعة واسعة</li><li>💧 زجاجة مياه كبيرة</li>':'<li>👕 ملابس مريحة</li><li>🕶️ نظارة شمسية</li><li>🎒 حقيبة خفيفة</li>'}
-            ${wind>10?'<li>🧥 جاكيت مقاوم للرياح</li>':''}
+            ${temp > 35 ? '<li>🧴 واقي شمس SPF 50+</li><li>🧢 قبعة واسعة</li><li>💧 زجاجة مياه كبيرة</li>' : '<li>👕 ملابس مريحة</li><li>🕶️ نظارة شمسية</li><li>🎒 حقيبة خفيفة</li>'}
+            ${wind > 10 ? '<li>🧥 جاكيت مقاوم للرياح</li>' : ''}
           </ul>
         </div>
       </div>
     `;
-  } catch(err) {
-    lo.style.display='none';
-    document.getElementById('results').innerHTML=`<div style="background:rgba(192,88,42,0.1);border:1px solid rgba(192,88,42,0.3);border-radius:0.75rem;padding:1.5rem;color:var(--rust)">⚠️ ${err.message}</div>`;
-  }
-}
- 
-// ── AI CHAT ──
-async function sendChat() {
-  const inp = document.getElementById('chatInput');
-  const msg = inp.value.trim(); if(!msg) return;
-  inp.value='';
-  const msgs = document.getElementById('chatMsgs');
-  msgs.innerHTML += `<div class="msg user">${msg}</div>`;
-  const loading = document.createElement('div');
-  loading.className = 'msg ai loading';
-  loading.textContent = '...';
-  msgs.appendChild(loading);
-  msgs.scrollTop = msgs.scrollHeight;
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system:'أنت مساعد سياحي متخصص في مصر. تساعد المسافرين في اختيار الرحلات، ونصائح الطقس، والمعالم السياحية. أجب بالعربية بأسلوب ودي ومفيد ومختصر. اسمك دليل SaFe Safari.',
-        messages:[{role:'user',content:msg}]
-      })
-    });
-    const d = await res.json();
-    loading.remove();
-    const reply = d.content?.[0]?.text || 'عذراً، حدث خطأ في الاتصال.';
-    msgs.innerHTML += `<div class="msg ai">${reply}</div>`;
-  } catch(e) {
-    loading.remove();
-    msgs.innerHTML += `<div class="msg ai" style="color:var(--rust)">عذراً، حدث خطأ. يرجى المحاولة لاحقاً.</div>`;
-  }
-  msgs.scrollTop = msgs.scrollHeight;
-}
- 
-// ── CONTACT ──
-function sendContactMessage(e) {
-  e.preventDefault();
-  const name = document.getElementById('contactName').value;
-  const email = document.getElementById('contactEmail').value;
-  const st = document.getElementById('contactStatus');
-  st.style.display='none'; st.className='';
-  setTimeout(()=>{
-    st.className='success';
-    st.textContent=`شكراً يا ${name}! تم استلام رسالتك وسنتواصل معك على ${email}`;
-    document.getElementById('contactName').value='';
-    document.getElementById('contactEmail').value='';
-    document.getElementById('contactMessage').value='';
-    setTimeout(()=>st.style.display='none',5000);
-  },1500);
-}
- 
-// ── SURVEY ──
-let surveyStep=1, surveyData={age:null,interests:[],tripType:null,children:null};
-function showSurvey() { if(!localStorage.getItem('surveyDone')) document.getElementById('surveyModal').classList.add('open'); }
-function skipSurvey() { localStorage.setItem('surveyDone','skipped'); document.getElementById('surveyModal').classList.remove('open'); document.getElementById('resetSurveyBtn').style.display='block'; }
-function selectAge(a) { surveyData.age=a; nextStep(); }
-function toggleInterest(i,btn) { btn.classList.toggle('selected'); const idx=surveyData.interests.indexOf(i); if(idx>-1) surveyData.interests.splice(idx,1); else surveyData.interests.push(i); }
-function selectTripType(t) { surveyData.tripType=t; nextStep(); }
-function selectChildren(v) { surveyData.children=v==='yes'; completeSurvey(); }
-function nextStep() {
-  if(surveyStep<4){
-    document.querySelector(`.survey-step[data-step="${surveyStep}"]`).classList.remove('active');
-    surveyStep++;
-    document.querySelector(`.survey-step[data-step="${surveyStep}"]`).classList.add('active');
-    updateProgress();
-    document.getElementById('prevBtn').style.display='block';
-  }
-}
-function prevStep() {
-  if(surveyStep>1){
-    document.querySelector(`.survey-step[data-step="${surveyStep}"]`).classList.remove('active');
-    surveyStep--;
-    document.querySelector(`.survey-step[data-step="${surveyStep}"]`).classList.add('active');
-    updateProgress();
-    if(surveyStep===1) document.getElementById('prevBtn').style.display='none';
-  }
-}
-function updateProgress() {
-  const pct=surveyStep/4*100;
-  document.getElementById('progressBar').style.width=pct+'%';
-  document.getElementById('currentStep').textContent=surveyStep;
-  document.getElementById('progressPercent').textContent=Math.round(pct);
-}
-function completeSurvey() {
-  localStorage.setItem('surveyDone','true');
-  localStorage.setItem('surveyData',JSON.stringify(surveyData));
-  document.getElementById('surveyModal').classList.remove('open');
-  document.getElementById('resetSurveyBtn').style.display='block';
-  displayRecommendedTrip();
-}
-function resetSurvey() {
-  if(!confirm('إعادة الاستبيان؟')) return;
-  localStorage.removeItem('surveyDone'); localStorage.removeItem('surveyData');
-  surveyStep=1; surveyData={age:null,interests:[],tripType:null,children:null};
-  document.querySelectorAll('.survey-step').forEach(s=>s.classList.remove('active'));
-  document.querySelector('[data-step="1"]').classList.add('active');
-  document.querySelectorAll('.interest-btn.selected').forEach(b=>b.classList.remove('selected'));
-  updateProgress();
-  document.getElementById('prevBtn').style.display='none';
-  document.getElementById('surveyModal').classList.add('open');
-  document.getElementById('resetSurveyBtn').style.display='none';
-}
- 
-// ── SCROLL ANIMATIONS ──
-const observer = new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.15});
-document.querySelectorAll('.fade-up').forEach(el=>observer.observe(el));
- 
-// ── PWA ──
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBtn').style.display='block';});
-function promptInstall(){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{document.getElementById('installBtn').style.display='none';});}
- 
-// ── INIT ──
-document.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('currentYear').textContent=new Date().getFullYear();
-  document.getElementById('date').value=new Date().toISOString().split('T')[0];
-  filterTrips('الكل');
-  setTimeout(initMap,500);
-  setTimeout(()=>{applyLang();},100);
-  setTimeout(showSurvey,2500);
-  if(localStorage.getItem('surveyDone')) document.getElementById('resetSurveyBtn').style.display='block';
-});
- 
-if('serviceWorker'in navigator){
-  window.addEventListener('load',()=>{navigator.serviceWorker.register('/service-worker.js').catch(()=>{});});
-}
-</script>
+            } catch (err) {
+                lo.style.display = 'none';
+                document.getElementById('results').innerHTML = `<div style="background:rgba(192,88,42,0.1);border:1px solid rgba(192,88,42,0.3);border-radius:0.75rem;padding:1.5rem;color:var(--rust)">⚠️ ${err.message}</div>`;
+            }
+        }
+
+        // ── AI CHAT ──
+        async function sendChat() {
+            const inp = document.getElementById('chatInput');
+            const msg = inp.value.trim(); if (!msg) return;
+            inp.value = '';
+            const msgs = document.getElementById('chatMsgs');
+            msgs.innerHTML += `<div class="msg user">${msg}</div>`;
+            const loading = document.createElement('div');
+            loading.className = 'msg ai loading';
+            loading.textContent = '...';
+            msgs.appendChild(loading);
+            msgs.scrollTop = msgs.scrollHeight;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 1000,
+                        system: 'أنت مساعد سياحي متخصص في مصر. تساعد المسافرين في اختيار الرحلات، ونصائح الطقس، والمعالم السياحية. أجب بالعربية بأسلوب ودي ومفيد ومختصر. اسمك دليل SaFe Safari.',
+                        messages: [{ role: 'user', content: msg }]
+                    })
+                });
+                const d = await res.json();
+                loading.remove();
+                const reply = d.content?.[0]?.text || 'عذراً، حدث خطأ في الاتصال.';
+                msgs.innerHTML += `<div class="msg ai">${reply}</div>`;
+            } catch (e) {
+                loading.remove();
+                msgs.innerHTML += `<div class="msg ai" style="color:var(--rust)">عذراً، حدث خطأ. يرجى المحاولة لاحقاً.</div>`;
+            }
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        // ── CONTACT ──
+        function sendContactMessage(e) {
+            e.preventDefault();
+            const name = document.getElementById('contactName').value;
+            const email = document.getElementById('contactEmail').value;
+            const st = document.getElementById('contactStatus');
+            st.style.display = 'none'; st.className = '';
+            setTimeout(() => {
+                st.className = 'success';
+                st.textContent = `شكراً يا ${name}! تم استلام رسالتك وسنتواصل معك على ${email}`;
+                document.getElementById('contactName').value = '';
+                document.getElementById('contactEmail').value = '';
+                document.getElementById('contactMessage').value = '';
+                setTimeout(() => st.style.display = 'none', 5000);
+            }, 1500);
+        }
+
+        // ── SURVEY ──
+        let surveyStep = 1, surveyData = { age: null, interests: [], tripType: null, children: null };
+        function showSurvey() { if (!localStorage.getItem('surveyDone')) document.getElementById('surveyModal').classList.add('open'); }
+        function skipSurvey() { localStorage.setItem('surveyDone', 'skipped'); document.getElementById('surveyModal').classList.remove('open'); document.getElementById('resetSurveyBtn').style.display = 'block'; }
+        function selectAge(a) { surveyData.age = a; nextStep(); }
+        function toggleInterest(i, btn) { btn.classList.toggle('selected'); const idx = surveyData.interests.indexOf(i); if (idx > -1) surveyData.interests.splice(idx, 1); else surveyData.interests.push(i); }
+        function selectTripType(t) { surveyData.tripType = t; nextStep(); }
+        function selectChildren(v) { surveyData.children = v === 'yes'; completeSurvey(); }
+        function nextStep() {
+            if (surveyStep < 4) {
+                document.querySelector(`.survey-step[data-step="${surveyStep}"]`).classList.remove('active');
+                surveyStep++;
+                document.querySelector(`.survey-step[data-step="${surveyStep}"]`).classList.add('active');
+                updateProgress();
+                document.getElementById('prevBtn').style.display = 'block';
+            }
+        }
+        function prevStep() {
+            if (surveyStep > 1) {
+                document.querySelector(`.survey-step[data-step="${surveyStep}"]`).classList.remove('active');
+                surveyStep--;
+                document.querySelector(`.survey-step[data-step="${surveyStep}"]`).classList.add('active');
+                updateProgress();
+                if (surveyStep === 1) document.getElementById('prevBtn').style.display = 'none';
+            }
+        }
+        function updateProgress() {
+            const pct = surveyStep / 4 * 100;
+            document.getElementById('progressBar').style.width = pct + '%';
+            document.getElementById('currentStep').textContent = surveyStep;
+            document.getElementById('progressPercent').textContent = Math.round(pct);
+        }
+        function completeSurvey() {
+            localStorage.setItem('surveyDone', 'true');
+            localStorage.setItem('surveyData', JSON.stringify(surveyData));
+            document.getElementById('surveyModal').classList.remove('open');
+            document.getElementById('resetSurveyBtn').style.display = 'block';
+            displayRecommendedTrip();
+        }
+        function resetSurvey() {
+            if (!confirm('إعادة الاستبيان؟')) return;
+            localStorage.removeItem('surveyDone'); localStorage.removeItem('surveyData');
+            surveyStep = 1; surveyData = { age: null, interests: [], tripType: null, children: null };
+            document.querySelectorAll('.survey-step').forEach(s => s.classList.remove('active'));
+            document.querySelector('[data-step="1"]').classList.add('active');
+            document.querySelectorAll('.interest-btn.selected').forEach(b => b.classList.remove('selected'));
+            updateProgress();
+            document.getElementById('prevBtn').style.display = 'none';
+            document.getElementById('surveyModal').classList.add('open');
+            document.getElementById('resetSurveyBtn').style.display = 'none';
+        }
+
+        // ── SCROLL ANIMATIONS ──
+        const observer = new IntersectionObserver(entries => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }); }, { threshold: 0.15 });
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+        // ── PWA ──
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; document.getElementById('installBtn').style.display = 'block'; });
+        function promptInstall() { deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => { document.getElementById('installBtn').style.display = 'none'; }); }
+
+        // ── INIT ──
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            filterTrips('الكل');
+            setTimeout(initMap, 500);
+            setTimeout(() => { applyLang(); }, 100);
+            setTimeout(showSurvey, 2500);
+            if (localStorage.getItem('surveyDone')) document.getElementById('resetSurveyBtn').style.display = 'block';
+        });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => { navigator.serviceWorker.register('/service-worker.js').catch(() => { }); });
+        }
+    </script>
 </body>
 
 </html>
