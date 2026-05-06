@@ -365,7 +365,37 @@
             text-transform: uppercase;
             margin-bottom: 1.5rem;
         }
+        .hero-tag {
+    position: relative;
+    overflow: hidden;
+}
 
+.hero-tag::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 50%; /* أصغر = جوه التاج */
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(239, 189, 80, 0.2),
+        transparent
+    );
+    transform: skewX(-20deg);
+    animation: shine 2s infinite;
+    border-radius: inherit; /* يخليها نفس شكل التاج */
+}
+
+@keyframes shine {
+    0% {
+        left: -50%;
+    }
+    100% {
+        left: 120%;
+    }
+}
         .hero-title {
             font-family: 'Playfair Display', serif;
             font-weight: 900;
@@ -377,7 +407,7 @@
             color: var(--gold-light);
             display: block;
             text-shadow: #0d0a05 0px 0px 8px, rgba(212, 160, 23, 0.5) 0px 0px 12px;
-            font-size: clamp(8rem, 9vw, 6rem);
+            font-size: 8rem;
         }
 
         .hero-sub {
