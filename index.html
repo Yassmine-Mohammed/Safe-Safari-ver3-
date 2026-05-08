@@ -2574,77 +2574,220 @@
         }
 
         // ── NASA ──
-        async function loadNASAData() {
-            const place = document.getElementById('place').value.trim();
-            const date = document.getElementById('date').value;
-            if (!place || !date) { alert('الرجاء إدخال الموقع والتاريخ'); return; }
-            const rc = document.getElementById('resultsContainer');
-            const lo = document.getElementById('loadingOverlay');
-            rc.style.display = 'block'; lo.style.display = 'flex';
-            try {
-                let lat, lon;
-                const p = place.split(',').map(s => s.trim());
-                if (p.length === 2 && !isNaN(p[0]) && !isNaN(p[1])) { lat = +p[0]; lon = +p[1]; }
-                else {
-                    const gr = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(place)}&format=json&limit=1`);
-                    const gd = await gr.json();
-                    if (!gd.length) throw new Error('لم يتم العثور على الموقع');
-                    lat = +gd[0].lat; lon = +gd[0].lon;
-                }
-                const sd = new Date(date); const ed = new Date(date);
-                sd.setDate(sd.getDate() - 7);
-                const s = sd.toISOString().split('T')[0].replace(/-/g, '');
-                const e = ed.toISOString().split('T')[0].replace(/-/g, '');
-                const url = `https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M,RH2M,WS2M,PRECTOTCORR&community=RE&longitude=${lon}&latitude=${lat}&start=${s}&end=${e}&format=JSON`;
-                const res = await fetch(url); const d = await res.json();
-                if (!d.properties?.parameter) throw new Error('فشل استرجاع البيانات من NASA');
-                const par = d.properties.parameter;
-                const dates = Object.keys(par.T2M).sort();
-                const latest = dates[dates.length - 1];
-                const temp = par.T2M[latest], hum = par.RH2M[latest], wind = par.WS2M[latest], prec = par.PRECTOTCORR[latest];
-                let safety = 'آمن', sc = 'var(--sage)', si = '✅';
-                if (temp > 40 || wind > 10 || prec > 10) { safety = 'حذر'; sc = 'var(--gold)'; si = '⚠️'; }
-                if (temp > 45 || wind > 15 || prec > 20) { safety = 'خطر'; sc = 'var(--rust)'; si = '❌'; }
-                lo.style.display = 'none';
-                document.getElementById('results').innerHTML = `
-      <div style="margin-bottom:1.5rem;padding:1rem 1.25rem;background:rgba(212,160,23,0.06);border:1px solid rgba(212,160,23,0.2);border-radius:0.75rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem">
-        <div><div style="font-size:0.8rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:0.08em">مصدر البيانات</div><div style="font-size:1rem;color:var(--sand);margin-top:0.2rem">🛰️ NASA POWER Project</div></div>
-        <div style="text-align:left"><div style="font-size:0.75rem;color:rgba(232,213,176,0.45)">الإحداثيات</div><div style="font-size:0.9rem;color:var(--sand)">${lat.toFixed(4)}, ${lon.toFixed(4)}</div></div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem">
-        <div class="weather-metric"><div class="metric-icon">🌡️</div><div class="metric-val">${temp.toFixed(1)}°C</div><div class="metric-label">درجة الحرارة</div></div>
-        <div class="weather-metric"><div class="metric-icon">💧</div><div class="metric-val">${hum.toFixed(0)}%</div><div class="metric-label">الرطوبة</div></div>
-        <div class="weather-metric"><div class="metric-icon">💨</div><div class="metric-val">${wind.toFixed(1)}</div><div class="metric-label">سرعة الرياح (m/s)</div></div>
-        <div class="weather-metric"><div class="metric-icon">🌧️</div><div class="metric-val">${prec.toFixed(1)}</div><div class="metric-label">الأمطار (mm)</div></div>
-        <div class="weather-metric" style="border-color:rgba(212,160,23,0.3)"><div class="metric-icon">${si}</div><div class="metric-val" style="color:${sc}">${safety}</div><div class="metric-label">حالة السلامة</div></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:0.75rem;padding:1.25rem">
-          <h4 style="font-size:0.85rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1rem">💡 نصائح السفر</h4>
-          <ul style="list-style:none;display:flex;flex-direction:column;gap:0.6rem;font-size:0.88rem;color:rgba(232,213,176,0.65)">
-            ${temp > 35 ? '<li>☀️ تجنب التعرض للشمس 12-3م</li><li>💧 اشرب 3-4 لتر يومياً</li>' : ''}
-            ${temp > 25 && temp <= 35 ? '<li>😊 الطقس مثالي للأنشطة الخارجية</li><li>📸 وقت رائع للتصوير</li>' : ''}
-            ${temp <= 25 ? '<li>🧥 أحضر جاكيت خفيف للمساء</li><li>☕ استمتع بالطقس المنعش</li>' : ''}
-            ${wind > 10 ? '<li>💨 رياح قوية — تجنب الأماكن المكشوفة</li>' : ''}
-            ${prec > 5 ? '<li>☔ احتمال أمطار — خذ مظلة</li>' : ''}
-            <li>✅ بيانات من أقمار NASA الصناعية</li>
-          </ul>
-        </div>
-        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:0.75rem;padding:1.25rem">
-          <h4 style="font-size:0.85rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1rem">🎒 ما تحتاجه</h4>
-          <ul style="list-style:none;display:flex;flex-direction:column;gap:0.6rem;font-size:0.88rem;color:rgba(232,213,176,0.65)">
-            ${temp > 35 ? '<li>🧴 واقي شمس SPF 50+</li><li>🧢 قبعة واسعة</li><li>💧 زجاجة مياه كبيرة</li>' : '<li>👕 ملابس مريحة</li><li>🕶️ نظارة شمسية</li><li>🎒 حقيبة خفيفة</li>'}
-            ${wind > 10 ? '<li>🧥 جاكيت مقاوم للرياح</li>' : ''}
-          </ul>
-        </div>
-      </div>
-    `;
-            } catch (err) {
-                lo.style.display = 'none';
-                document.getElementById('results').innerHTML = `<div style="background:rgba(192,88,42,0.1);border:1px solid rgba(192,88,42,0.3);border-radius:0.75rem;padding:1.5rem;color:var(--rust)">⚠️ ${err.message}</div>`;
-            }
+   async function loadNASAData() {
+    const place = document.getElementById('place').value.trim();
+    const date  = document.getElementById('date').value;
+    if (!place || !date) { alert('الرجاء إدخال الموقع والتاريخ'); return; }
+
+    const rc = document.getElementById('resultsContainer');
+    const lo = document.getElementById('loadingOverlay');
+    rc.style.display = 'block'; lo.style.display = 'flex';
+    document.getElementById('results').innerHTML = '';
+
+    try {
+        // ── 1. تحديد الإحداثيات ──
+        let lat, lon;
+        const p = place.split(',').map(s => s.trim());
+        if (p.length === 2 && !isNaN(p[0]) && !isNaN(p[1])) {
+            lat = +p[0]; lon = +p[1];
+        } else {
+            const gr = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(place)}&format=json&limit=1`);
+            const gd = await gr.json();
+            if (!gd.length) throw new Error('لم يتم العثور على الموقع — جرب إحداثيات يدوية');
+            lat = +gd[0].lat; lon = +gd[0].lon;
+            if (map) { map.setView([lat, lon], 10); if (marker) map.removeLayer(marker); marker = L.marker([lat, lon]).addTo(map); }
         }
 
+        // ── 2. هل التاريخ مستقبلي؟ ──
+        const chosen   = new Date(date);
+        const today    = new Date(); today.setHours(0,0,0,0);
+        const isFuture = chosen > today;
+        const fmt      = d => d.toISOString().split('T')[0].replace(/-/g,'');
+        const clean    = v => (v === undefined || v === null || v <= -998) ? null : v;
+
+        let safeTemp, safeTempMax, safeTempMin, safeHum, safeWind, safePrec;
+        let dataLabel, dataNote;
+
+        if (!isFuture) {
+            // ── بيانات حقيقية ──
+            const dateStr = fmt(chosen);
+            const url = `https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M,T2M_MAX,T2M_MIN,RH2M,WS2M,PRECTOTCORR&community=AG&longitude=${lon}&latitude=${lat}&start=${dateStr}&end=${dateStr}&format=JSON`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`خطأ NASA (${res.status})`);
+            const d = await res.json();
+            if (!d.properties?.parameter) throw new Error('لم تُرجع NASA بيانات');
+            const par = d.properties.parameter;
+            safeTemp    = clean(par.T2M?.[dateStr]);
+            safeTempMax = clean(par.T2M_MAX?.[dateStr]) ?? safeTemp;
+            safeTempMin = clean(par.T2M_MIN?.[dateStr]) ?? safeTemp;
+            safeHum     = clean(par.RH2M?.[dateStr])  ?? 0;
+            safeWind    = clean(par.WS2M?.[dateStr])  ?? 0;
+            safePrec    = clean(par.PRECTOTCORR?.[dateStr]) ?? 0;
+            if (safeTemp === null) throw new Error('بيانات غير متاحة لهذا التاريخ — جرب تاريخاً أقدم');
+            dataLabel = `📅 بيانات حقيقية — ${date}`;
+            dataNote  = null;
+
+        } else {
+            // ── تاريخ مستقبلي: متوسط 3 سنين سابقة لنفس اليوم ──
+            const month = String(chosen.getMonth()+1).padStart(2,'0');
+            const day   = String(chosen.getDate()).padStart(2,'0');
+            const years = [chosen.getFullYear()-1, chosen.getFullYear()-2, chosen.getFullYear()-3];
+
+            const allReads = await Promise.all(years.map(async yr => {
+                const ds = `${yr}${month}${day}`;
+                const url = `https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M,T2M_MAX,T2M_MIN,RH2M,WS2M,PRECTOTCORR&community=AG&longitude=${lon}&latitude=${lat}&start=${ds}&end=${ds}&format=JSON`;
+                try {
+                    const res = await fetch(url);
+                    if (!res.ok) return null;
+                    const d   = await res.json();
+                    const par = d.properties?.parameter;
+                    if (!par) return null;
+                    return {
+                        temp:    clean(par.T2M?.[ds]),
+                        tempMax: clean(par.T2M_MAX?.[ds]),
+                        tempMin: clean(par.T2M_MIN?.[ds]),
+                        hum:     clean(par.RH2M?.[ds]),
+                        wind:    clean(par.WS2M?.[ds]),
+                        prec:    clean(par.PRECTOTCORR?.[ds])
+                    };
+                } catch { return null; }
+            }));
+
+            const valid = allReads.filter(r => r && r.temp !== null);
+            if (!valid.length) throw new Error('لا توجد بيانات تاريخية كافية للتنبؤ بهذا التاريخ');
+
+            const avg = key => valid.reduce((s,r) => s + (r[key] ?? 0), 0) / valid.length;
+            safeTemp    = avg('temp');
+            safeTempMax = avg('tempMax');
+            safeTempMin = avg('tempMin');
+            safeHum     = avg('hum');
+            safeWind    = avg('wind');
+            safePrec    = avg('prec');
+            dataLabel = `🔮 توقع مناخي — ${date}`;
+            dataNote  = `مبني على متوسط نفس اليوم من ${valid.length} سنوات سابقة عبر NASA`;
+        }
+
+        // ── 3. تقييم مناسبة الرحلة ──
+        // استخرج نوع الرحلة من بيانات الاستبيان أو من عنوان الصفحة
+        const surveyRaw  = localStorage.getItem('surveyData');
+        const tripType   = surveyRaw ? (JSON.parse(surveyRaw).tripType || '') : '';
+
+        let tripScore = 100;
+        let tripIssues = [];
+        let tripAdvice = [];
+
+        if (tripType === 'صحراوية') {
+            if (safeTemp > 42) { tripScore -= 40; tripIssues.push('🌡️ حرارة شديدة جداً للصحراء'); }
+            else if (safeTemp > 35) { tripScore -= 15; tripAdvice.push('☀️ سافر صباحاً وتجنب 12-3م'); }
+            if (safeWind > 12) { tripScore -= 30; tripIssues.push('🌪️ رياح رملية قوية متوقعة'); }
+            if (safePrec > 5)  { tripScore -= 20; tripIssues.push('🌧️ أمطار نادرة لكن ممكنة'); }
+            if (safeTemp >= 20 && safeTemp <= 32 && safeWind < 8) tripAdvice.push('✅ مناخ مثالي لرحلات الصحراء');
+        } else if (tripType === 'بحرية') {
+            if (safeTemp < 18) { tripScore -= 35; tripIssues.push('🥶 البحر بارد جداً للسباحة'); }
+            if (safeWind > 10) { tripScore -= 30; tripIssues.push('🌊 رياح قوية — مخاطر على القوارب'); }
+            if (safePrec > 10) { tripScore -= 20; tripIssues.push('⛈️ احتمال عواصف بحرية'); }
+            if (safeTemp >= 22 && safeTemp <= 34 && safeWind < 8) tripAdvice.push('✅ مناخ مثالي للغوص والسنوركلينج');
+        } else if (tripType === 'أثرية') {
+            if (safeTemp > 40) { tripScore -= 35; tripIssues.push('🌡️ حرارة شديدة — تجنب الجولات الطويلة'); }
+            if (safePrec > 15) { tripScore -= 20; tripIssues.push('🌧️ أمطار قد تؤثر على الجولات'); }
+            if (safeTemp >= 18 && safeTemp <= 32) tripAdvice.push('✅ طقس مريح لاستكشاف المعالم الأثرية');
+        } else {
+            // لو مفيش نوع رحلة محدد
+            if (safeTemp > 40) { tripScore -= 30; tripIssues.push('🌡️ حرارة شديدة'); }
+            if (safeWind > 12) { tripScore -= 20; tripIssues.push('💨 رياح قوية'); }
+            if (safePrec > 15) { tripScore -= 20; tripIssues.push('🌧️ احتمال أمطار غزيرة'); }
+        }
+        tripScore = Math.max(0, Math.min(100, tripScore));
+
+        let scoreColor = 'var(--sage-light)', scoreLabel = 'مناسب جداً ✅';
+        if (tripScore < 70) { scoreColor = 'var(--gold)'; scoreLabel = 'مناسب مع تحفظات ⚠️'; }
+        if (tripScore < 45) { scoreColor = 'var(--rust)'; scoreLabel = 'غير مناسب ❌'; }
+
+        // ── 4. وصف الطقس ──
+        let condition = '☀️ مشمس وجاف';
+        if      (safePrec > 20)              condition = '⛈️ عواصف ومطر';
+        else if (safePrec > 5)               condition = '🌧️ أمطار';
+        else if (safePrec > 1)               condition = '🌦️ أمطار خفيفة';
+        else if (safeHum > 70)               condition = '🌫️ رطب وضبابي';
+        else if (safeWind > 8)               condition = '💨 رياح قوية';
+        else if (safeTemp > 35)              condition = '🌞 حار وجاف';
+        else if (safeTemp < 15)              condition = '🧊 بارد';
+        else                                 condition = '🌤️ معتدل ومناسب';
+
+        lo.style.display = 'none';
+
+        document.getElementById('results').innerHTML = `
+            <!-- Header -->
+            <div style="margin-bottom:1.25rem;padding:1rem 1.25rem;background:rgba(212,160,23,0.06);
+                 border:1px solid rgba(212,160,23,0.2);border-radius:0.75rem;
+                 display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem">
+                <div>
+                    <div style="font-size:0.8rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:0.08em">مصدر البيانات</div>
+                    <div style="color:var(--sand);margin-top:0.2rem">🛰️ NASA POWER — ${dataLabel}</div>
+                    ${dataNote ? `<div style="font-size:0.78rem;color:rgba(232,213,176,0.45);margin-top:0.3rem">${dataNote}</div>` : ''}
+                </div>
+                <div style="text-align:left">
+                    <div style="font-size:0.75rem;color:rgba(232,213,176,0.45)">الإحداثيات</div>
+                    <div style="color:var(--sand)">${lat.toFixed(4)}, ${lon.toFixed(4)}</div>
+                </div>
+            </div>
+
+            <!-- حالة الطقس -->
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+                 border-radius:1rem;padding:1.25rem;text-align:center;margin-bottom:1rem">
+                <div style="font-size:3rem">${condition.split(' ')[0]}</div>
+                <div style="color:var(--sand);font-weight:700;margin-top:0.4rem">${condition.split(' ').slice(1).join(' ')}</div>
+            </div>
+
+            <!-- مقاييس الطقس -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:0.85rem;margin-bottom:1.25rem">
+                <div class="weather-metric"><div class="metric-icon">🌡️</div><div class="metric-val">${safeTemp.toFixed(1)}°C</div><div class="metric-label">متوسط الحرارة</div></div>
+                <div class="weather-metric"><div class="metric-icon">🔺</div><div class="metric-val">${safeTempMax.toFixed(1)}°C</div><div class="metric-label">أعلى حرارة</div></div>
+                <div class="weather-metric"><div class="metric-icon">🔻</div><div class="metric-val">${safeTempMin.toFixed(1)}°C</div><div class="metric-label">أدنى حرارة</div></div>
+                <div class="weather-metric"><div class="metric-icon">💧</div><div class="metric-val">${safeHum.toFixed(0)}%</div><div class="metric-label">الرطوبة</div></div>
+                <div class="weather-metric"><div class="metric-icon">💨</div><div class="metric-val">${safeWind.toFixed(1)}</div><div class="metric-label">الرياح (m/s)</div></div>
+                <div class="weather-metric"><div class="metric-icon">🌧️</div><div class="metric-val">${safePrec.toFixed(1)}</div><div class="metric-label">الأمطار (mm)</div></div>
+            </div>
+
+            <!-- تقييم مناسبة الرحلة -->
+            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+                 border-radius:1rem;padding:1.5rem;margin-bottom:1rem">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem">
+                    <h4 style="color:var(--gold);font-size:0.9rem;text-transform:uppercase;letter-spacing:0.08em">
+                        🎒 مناسبة الطقس لرحلتك ${tripType ? '('+tripType+')' : ''}
+                    </h4>
+                    <span style="color:${scoreColor};font-weight:800;font-size:1.1rem">${scoreLabel}</span>
+                </div>
+                <!-- شريط التقييم -->
+                <div style="background:rgba(255,255,255,0.06);border-radius:2rem;height:8px;margin-bottom:1rem;overflow:hidden">
+                    <div style="height:100%;width:${tripScore}%;background:${scoreColor};border-radius:2rem;
+                         transition:width 1s ease"></div>
+                </div>
+                ${tripIssues.length ? `
+                <div style="margin-bottom:0.75rem">
+                    ${tripIssues.map(i => `<div style="background:rgba(192,88,42,0.1);border:1px solid rgba(192,88,42,0.2);
+                        border-radius:0.5rem;padding:0.6rem 0.85rem;margin-bottom:0.4rem;
+                        font-size:0.88rem;color:rgba(232,213,176,0.8)">${i}</div>`).join('')}
+                </div>` : ''}
+                ${tripAdvice.length ? `
+                <div>
+                    ${tripAdvice.map(a => `<div style="background:rgba(74,124,89,0.1);border:1px solid rgba(74,124,89,0.2);
+                        border-radius:0.5rem;padding:0.6rem 0.85rem;margin-bottom:0.4rem;
+                        font-size:0.88rem;color:rgba(232,213,176,0.8)">${a}</div>`).join('')}
+                </div>` : ''}
+                ${!tripType ? `<div style="font-size:0.82rem;color:rgba(232,213,176,0.4);text-align:center;margin-top:0.5rem">
+                    💡 أكمل الاستبيان لتقييم أدق بناءً على نوع رحلتك</div>` : ''}
+            </div>`;
+
+    } catch (err) {
+        lo.style.display = 'none';
+        document.getElementById('results').innerHTML = `
+            <div style="background:rgba(192,88,42,0.1);border:1px solid rgba(192,88,42,0.3);
+                 border-radius:0.75rem;padding:1.5rem;color:var(--rust);text-align:center">
+                ⚠️ ${err.message}
+            </div>`;
+    }
+}
         // ── AI CHAT ──
         async function sendChat() {
             const inp = document.getElementById('chatInput');
