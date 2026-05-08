@@ -2845,11 +2845,10 @@ async function sendChat() {
 const res = await fetch('https://plain-butterfly-af2e.yassminmohammed048.workers.dev/',
                         {    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                model: 'claude-sonnet-4-20250514',
-                max_tokens: 1000,
-                system: 'أنت دليل SaFe Safari، مساعد سياحي ذكي متخصص في مصر. ساعد المسافرين في اختيار الرحلات، نصائح الطقس، المعالم السياحية، الفنادق، والميزانيات. أجب بالعربية بأسلوب ودي ومختصر.',
-                messages: chatHistory.slice(-10)
+           body: JSON.stringify({
+    system: 'أنت دليل SaFe Safari، مساعد سياحي ذكي متخصص في مصر. ساعد المسافرين في اختيار الرحلات، نصائح الطقس، المعالم السياحية، الفنادق، والميزانيات. أجب بالعربية بأسلوب ودي ومختصر.',
+    messages: chatHistory.slice(-10)
+})
             })
         });
 
