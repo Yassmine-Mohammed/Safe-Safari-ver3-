@@ -2842,8 +2842,8 @@ async function sendChat() {
     chatHistory.push({ role: 'user', content: msg });
 
     try {
-        const res = await fetch('https://safe-safari-ver3.pages.dev/', {
-    method: 'POST',
+const res = await fetch('https://plain-butterfly-af2e.yassminmohammed048.workers.dev/',
+                        {    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 model: 'claude-sonnet-4-20250514',
