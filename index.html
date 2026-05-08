@@ -1120,6 +1120,28 @@
             gap: 1rem;
         }
 
+        .quick-btn {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(232,213,176,0.12);
+    color: rgba(232,213,176,0.6);
+    padding: 0.4rem 0.85rem;
+    border-radius: 1rem;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.25s;
+    white-space: nowrap;
+}
+.quick-btn:hover {
+    background: rgba(212,160,23,0.1);
+    border-color: rgba(212,160,23,0.3);
+    color: var(--gold);
+}
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); opacity: 0.4; }
+    50%       { transform: translateY(-5px); opacity: 1; }
+}
+
         .chat-avatar {
             width: 48px;
             height: 48px;
@@ -2164,42 +2186,50 @@
     </div>
 
     <!-- ── AI CHAT ── -->
-    <section id="ai-chat">
-        <div class="ai-inner">
-            <div class="section-header fade-up">
-                <div class="section-tag">✨ Powered by Claude AI</div>
-                <h2 class="section-title" data-ar="مساعدك السياحي الذكي" data-en="Your Smart Travel Guide">مساعدك
-                    السياحي الذكي</h2>
-                <p class="section-sub" data-ar="اسأل عن أي شيء يخص رحلتك في مصر"
-                    data-en="Ask anything about your Egypt journey">اسأل عن أي شيء يخص رحلتك في مصر</p>
-                <div class="section-divider"></div>
+<section id="ai-chat">
+    <div class="ai-inner">
+        <div class="section-header fade-up">
+            <div class="section-tag">✨ Powered by Claude AI</div>
+            <h2 class="section-title" data-ar="مساعدك السياحي الذكي" data-en="Your Smart Travel Guide">مساعدك السياحي الذكي</h2>
+            <p class="section-sub" data-ar="اسأل عن أي شيء يخص رحلتك في مصر" data-en="Ask anything about your Egypt journey">اسأل عن أي شيء يخص رحلتك في مصر</p>
+            <div class="section-divider"></div>
+        </div>
+        <div class="chat-card fade-up">
+            <div class="chat-header">
+                <div class="chat-avatar">🤖</div>
+                <div>
+                    <h3 data-ar="دليل SaFe Safari" data-en="SaFe Safari Guide">دليل SaFe Safari</h3>
+                    <p data-ar="مساعد ذكي لرحلاتك في مصر" data-en="AI-powered Egypt travel assistant">مساعد ذكي لرحلاتك في مصر</p>
+                </div>
+                <div id="chatStatus" style="margin-right:auto;font-size:0.78rem;color:var(--sage-light);
+                     background:rgba(74,124,89,0.12);border:1px solid rgba(74,124,89,0.25);
+                     padding:0.25rem 0.75rem;border-radius:1rem">● متصل</div>
             </div>
-            <div class="chat-card fade-up">
-                <div class="chat-header">
-                    <div class="chat-avatar">🤖</div>
-                    <div>
-                        <h3 data-ar="دليل SaFe Safari" data-en="SaFe Safari Guide">دليل Safe Safari</h3>
-                        <p data-ar="مساعد ذكي لرحلاتك في مصر" data-en="AI-powered Egypt travel assistant">مساعد ذكي
-                            لرحلاتك في مصر</p>
-                    </div>
+            <div class="chat-msgs" id="chatMsgs">
+                <div class="msg ai"
+                    data-ar="مرحباً! أنا مساعدك السياحي الذكي. سواء كنت تريد معرفة أفضل الأوقات لزيارة الأهرامات، أو نصائح عن الطقس في سيوة، أو حتى توصيات للمطاعم — أنا هنا لمساعدتك 🌟"
+                    data-en="Hello! I'm your smart travel guide. Whether you want to know the best time to visit the Pyramids, weather tips for Siwa, or restaurant recommendations — I'm here to help 🌟">
+                    مرحباً! أنا مساعدك السياحي الذكي. سواء كنت تريد معرفة أفضل الأوقات لزيارة الأهرامات، أو نصائح عن الطقس في سيوة، أو حتى توصيات للمطاعم — أنا هنا لمساعدتك 🌟
                 </div>
-                <div class="chat-msgs" id="chatMsgs">
-                    <div class="msg ai"
-                        data-ar="مرحباً! أنا مساعدك السياحي الذكي. سواء كنت تريد معرفة أفضل الأوقات لزيارة الأهرامات، أو نصائح عن الطقس في سيوة، أو حتى توصيات للمطاعم — أنا هنا لمساعدتك 🌟"
-                        data-en="Hello! I'm your smart travel guide. Whether you want to know the best time to visit the Pyramids, weather tips for Siwa, or restaurant recommendations — I'm here to help 🌟">
-                        مرحباً! أنا مساعدك السياحي الذكي. سواء كنت تريد معرفة أفضل الأوقات لزيارة الأهرامات، أو نصائح عن
-                        الطقس في سيوة، أو حتى توصيات للمطاعم — أنا هنا لمساعدتك 🌟</div>
-                </div>
-                <div class="chat-footer">
-                    <input class="chat-input" id="chatInput" type="text" placeholder="اكتب سؤالك هنا..."
-                        data-placeholder-ar="اكتب سؤالك هنا..." data-placeholder-en="Ask your question here..."
-                        onkeydown="if(event.key==='Enter')sendChat()">
-                    <button class="btn-send" onclick="sendChat()" data-ar="إرسال" data-en="Send">إرسال</button>
-                </div>
+            </div>
+            <!-- اقتراحات سريعة -->
+            <div id="quickSuggestions" style="padding:0.75rem 1.5rem;display:flex;gap:0.5rem;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,0.04)">
+                <button class="quick-btn" onclick="quickAsk(this)">🏜️ أفضل وقت لسيوة؟</button>
+                <button class="quick-btn" onclick="quickAsk(this)">🤿 الغوص في شرم</button>
+                <button class="quick-btn" onclick="quickAsk(this)">🏛️ جولة الأقصر</button>
+                <button class="quick-btn" onclick="quickAsk(this)">💰 ميزانية الرحلة</button>
+            </div>
+            <div class="chat-footer">
+                <input class="chat-input" id="chatInput" type="text"
+                    placeholder="اكتب سؤالك هنا..."
+                    data-placeholder-ar="اكتب سؤالك هنا..."
+                    data-placeholder-en="Ask your question here..."
+                    onkeydown="if(event.key==='Enter')sendChat()">
+                <button class="btn-send" onclick="sendChat()" data-ar="إرسال" data-en="Send">إرسال</button>
             </div>
         </div>
-    </section>
-
+    </div>
+</section>
     <!-- ── CONTACT ── -->
     <section id="contact">
         <div style="max-width:1200px;margin:0 auto">
@@ -2788,40 +2818,71 @@
             </div>`;
     }
 }
-        // ── AI CHAT ──
-        async function sendChat() {
-            const inp = document.getElementById('chatInput');
-            const msg = inp.value.trim(); if (!msg) return;
-            inp.value = '';
-            const msgs = document.getElementById('chatMsgs');
-            msgs.innerHTML += `<div class="msg user">${msg}</div>`;
-            const loading = document.createElement('div');
-            loading.className = 'msg ai loading';
-            loading.textContent = '...';
-            msgs.appendChild(loading);
-            msgs.scrollTop = msgs.scrollHeight;
-            try {
-                const res = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: 'claude-sonnet-4-20250514',
-                        max_tokens: 1000,
-                        system: 'أنت مساعد سياحي متخصص في مصر. تساعد المسافرين في اختيار الرحلات، ونصائح الطقس، والمعالم السياحية. أجب بالعربية بأسلوب ودي ومفيد ومختصر. اسمك دليل SaFe Safari.',
-                        messages: [{ role: 'user', content: msg }]
-                    })
-                });
-                const d = await res.json();
-                loading.remove();
-                const reply = d.content?.[0]?.text || 'عذراً، حدث خطأ في الاتصال.';
-                msgs.innerHTML += `<div class="msg ai">${reply}</div>`;
-            } catch (e) {
-                loading.remove();
-                msgs.innerHTML += `<div class="msg ai" style="color:var(--rust)">عذراً، حدث خطأ. يرجى المحاولة لاحقاً.</div>`;
-            }
-            msgs.scrollTop = msgs.scrollHeight;
+      let chatHistory = [];
+
+async function sendChat() {
+    const inp = document.getElementById('chatInput');
+    const msg = inp.value.trim();
+    if (!msg) return;
+    inp.value = '';
+    inp.disabled = true;
+
+    const msgs = document.getElementById('chatMsgs');
+    msgs.innerHTML += `<div class="msg user">${msg}</div>`;
+
+    const typingId = 'typing_' + Date.now();
+    msgs.innerHTML += `
+        <div class="msg ai" id="${typingId}" style="display:flex;gap:4px;align-items:center;padding:12px 14px">
+            <span style="width:6px;height:6px;background:var(--gold);border-radius:50%;animation:bounce 0.9s infinite 0s;display:inline-block"></span>
+            <span style="width:6px;height:6px;background:var(--gold);border-radius:50%;animation:bounce 0.9s infinite 0.18s;display:inline-block"></span>
+            <span style="width:6px;height:6px;background:var(--gold);border-radius:50%;animation:bounce 0.9s infinite 0.36s;display:inline-block"></span>
+        </div>`;
+    msgs.scrollTop = msgs.scrollHeight;
+
+    chatHistory.push({ role: 'user', content: msg });
+
+    try {
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: 'claude-sonnet-4-20250514',
+                max_tokens: 1000,
+                system: 'أنت دليل SaFe Safari، مساعد سياحي ذكي متخصص في مصر. ساعد المسافرين في اختيار الرحلات، نصائح الطقس، المعالم السياحية، الفنادق، والميزانيات. أجب بالعربية بأسلوب ودي ومختصر.',
+                messages: chatHistory.slice(-10)
+            })
+        });
+
+        document.getElementById(typingId)?.remove();
+
+        if (!res.ok) {
+            const e = await res.json().catch(() => ({}));
+            throw new Error(e.error?.message || 'خطأ ' + res.status);
         }
 
+        const d = await res.json();
+        const reply = d.content?.[0]?.text || 'عذراً، لم أفهم.';
+        chatHistory.push({ role: 'assistant', content: reply });
+
+        const formatted = reply
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n/g, '<br>');
+        msgs.innerHTML += `<div class="msg ai">${formatted}</div>`;
+
+    } catch(e) {
+        document.getElementById(typingId)?.remove();
+        let err = 'عذراً، حدث خطأ.';
+        if (e.message.includes('401')) err = '🔑 الـ API Key غلط — تحقق منه';
+        else if (e.message.includes('429')) err = '⏳ تجاوزت الحد — انتظر دقيقة';
+        else if (e.message.includes('fetch')) err = '🌐 تحقق من الإنترنت';
+        msgs.innerHTML += `<div class="msg ai" style="color:var(--rust)">${err}</div>`;
+        chatHistory.pop();
+    }
+
+    inp.disabled = false;
+    inp.focus();
+    msgs.scrollTop = msgs.scrollHeight;
+}
         // ── CONTACT ──
         function sendContactMessage(e) {
             e.preventDefault();
