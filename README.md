@@ -60,7 +60,7 @@ Considers factors like:
 
 This project was inspired by the **NASA Apps Challenge**, specifically the theme:
 
-> "Would it rain?" / weather prediction & climate impact on daily life
+> "Would it rain in my parade?" / weather prediction & climate impact on daily life
 
 The goal was to transform raw climate insights into a **practical tourism decision-making tool**.
 
@@ -146,7 +146,7 @@ Software Engineering Student — Faculty of Computers & Information, Assiut Univ
 
 This project was developed as part of a NASA Apps Challenge-inspired idea under the theme of:
 
-**"Would it rain...?"**
+**"Would it rain in my parade?"**
 
 It focuses on transforming environmental data into actionable tourism decisions.
 
